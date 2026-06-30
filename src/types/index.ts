@@ -1,5 +1,6 @@
 export interface PostMeta {
   slug: string;
+  path: string;
   title: string;
   date: string;
   category: string;
