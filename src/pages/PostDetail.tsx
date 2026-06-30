@@ -1,16 +1,26 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 import { getPostBySlug } from '../utils/posts';
+import type { Post } from '../types';
 import 'highlight.js/styles/github-dark.css';
 import './PostDetail.css';
 
 export default function PostDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const post = slug ? getPostBySlug(slug) : null;
+  const [post, setPost] = useState<Post | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!slug) { setLoading(false); return; }
+    getPostBySlug(slug).then(p => { setPost(p); setLoading(false); });
+  }, [slug]);
+
+  if (loading) return null;
 
   if (!post) {
     return (

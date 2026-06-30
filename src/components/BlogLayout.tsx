@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
+import Giscus from '@giscus/react';
 import 'highlight.js/styles/github-dark.css';
 import './BlogLayout.css';
 
@@ -20,6 +21,7 @@ export default function BlogLayout() {
   const [activeCategory, setActiveCategory] = useState('전체');
   const [activePost, setActivePost] = useState<Post | null>(null);
   const [postLoading, setPostLoading] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     (localStorage.getItem('theme') as 'light' | 'dark') ?? 'light'
   );
@@ -42,7 +44,7 @@ export default function BlogLayout() {
   useEffect(() => {
     const siteName = 'azzzhBlog';
     const siteDesc = '개발하면서 공부한 것들을 기록하는 공간';
-    const siteUrl = 'https://hhyun.github.io';
+    const siteUrl = 'https://hyunjss.github.io/azzzhBlog';
 
     const title = activePost ? `${activePost.title} | ${siteName}` : siteName;
     const desc = activePost?.description ?? siteDesc;
@@ -50,18 +52,26 @@ export default function BlogLayout() {
 
     document.title = title;
 
-    const setMetaContent = (selector: string, value: string) => {
+    const setMeta = (selector: string, value: string) => {
       const el = document.querySelector<HTMLMetaElement>(selector);
       if (el) el.content = value;
     };
 
-    setMetaContent('meta[name="description"]', desc);
-    setMetaContent('meta[property="og:title"]', title);
-    setMetaContent('meta[property="og:description"]', desc);
-    setMetaContent('meta[property="og:url"]', url);
-    setMetaContent('meta[property="og:type"]', activePost ? 'article' : 'website');
-    setMetaContent('meta[name="twitter:title"]', title);
-    setMetaContent('meta[name="twitter:description"]', desc);
+    setMeta('meta[name="description"]', desc);
+    setMeta('meta[property="og:title"]', title);
+    setMeta('meta[property="og:description"]', desc);
+    setMeta('meta[property="og:url"]', url);
+    setMeta('meta[property="og:type"]', activePost ? 'article' : 'website');
+    setMeta('meta[name="twitter:title"]', title);
+    setMeta('meta[name="twitter:description"]', desc);
+
+    let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.rel = 'canonical';
+      document.head.appendChild(canonical);
+    }
+    canonical.href = url;
   }, [activePost]);
 
   const filteredPosts: PostMeta[] = activeCategory === '전체'
@@ -70,20 +80,16 @@ export default function BlogLayout() {
 
   function handleSelectPost(post: PostMeta) {
     navigate(`/post/${post.slug}`);
-    setPostLoading(true);
-    getPostBySlug(post.slug).then(full => {
-      if (full) setActivePost(full);
-      setPostLoading(false);
-    });
   }
 
   function handleSelectCategory(cat: string) {
     setActiveCategory(cat);
+    setSidebarOpen(false);
     navigate('/');
   }
 
   return (
-    <div className="blog-layout">
+    <div className={`blog-layout${(activePost || postLoading) ? ' blog-layout--post-active' : ''}`}>
 
       {/* ── macOS 타이틀바 ── */}
       <div className="titlebar">
@@ -92,6 +98,11 @@ export default function BlogLayout() {
           <button className="traffic-light traffic-light--min"   aria-label="최소화" />
           <button className="traffic-light traffic-light--max"   aria-label="최대화" />
         </div>
+        <button
+          className="titlebar__hamburger"
+          onClick={() => setSidebarOpen(o => !o)}
+          aria-label="메뉴"
+        >☰</button>
         <span className="titlebar__title">
           {activePost ? activePost.title : 'azzzhBlog'}
         </span>
@@ -114,8 +125,13 @@ export default function BlogLayout() {
       {/* ── 3패널 바디 ── */}
       <div className="blog-body">
 
+        {/* 모바일 사이드바 backdrop */}
+        {sidebarOpen && (
+          <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
+        )}
+
         {/* 왼쪽: 카테고리 사이드바 */}
-        <aside className="blog-sidebar">
+        <aside className={`blog-sidebar${sidebarOpen ? ' blog-sidebar--open' : ''}`}>
           <div className="blog-sidebar__section-label">카테고리</div>
           <nav className="blog-sidebar__nav">
             {categories.map(cat => (
@@ -165,40 +181,57 @@ export default function BlogLayout() {
 
         {/* 오른쪽: 포스트 내용 */}
         <main className="blog-content">
-          {postLoading ? (
-            <div className="blog-content__empty">
-              <p>불러오는 중...</p>
-            </div>
-          ) : activePost ? (
-            <div className="blog-content__inner">
-              <header className="blog-content__header">
-                <div className="blog-content__category">{activePost.category}</div>
-                <h1 className="blog-content__title">{activePost.title}</h1>
-                <div className="blog-content__meta">
-                  <span>{activePost.date}</span>
-                  <span>·</span>
-                  <span>{activePost.readingTime}분 읽기</span>
+          <div className="blog-content__inner">
+            {postLoading ? null : activePost ? (
+              <>
+                <button
+                  className="blog-content__back-mobile"
+                  onClick={() => { setActivePost(null); navigate('/'); }}
+                >← 목록으로</button>
+                <header className="blog-content__header">
+                  <div className="blog-content__category">{activePost.category}</div>
+                  <h1 className="blog-content__title">{activePost.title}</h1>
+                  <div className="blog-content__meta">
+                    <span>{activePost.date}</span>
+                    <span>·</span>
+                    <span>{activePost.readingTime}분 읽기</span>
+                  </div>
+                  <div className="blog-content__tags">
+                    {activePost.tags.map(tag => (
+                      <span key={tag} className="post-tag post-tag--lg">#{tag}</span>
+                    ))}
+                  </div>
+                </header>
+                <article className="markdown-body">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeHighlight, rehypeSlug]}
+                  >
+                    {activePost.content}
+                  </ReactMarkdown>
+                </article>
+                <div className="giscus-wrap">
+                  <Giscus
+                    repo="hyunjss/azzzhBlog"
+                    repoId="R_kgDOSOcAvg"
+                    category="Comment"
+                    categoryId="DIC_kwDOSOcAvs4DALvz"
+                    mapping="pathname"
+                    strict="0"
+                    reactionsEnabled="1"
+                    emitMetadata="0"
+                    inputPosition="bottom"
+                    theme={theme === 'dark' ? 'dark' : 'light'}
+                    lang="ko"
+                  />
                 </div>
-                <div className="blog-content__tags">
-                  {activePost.tags.map(tag => (
-                    <span key={tag} className="post-tag post-tag--lg">#{tag}</span>
-                  ))}
-                </div>
-              </header>
-              <article className="markdown-body">
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeHighlight, rehypeSlug]}
-                >
-                  {activePost.content}
-                </ReactMarkdown>
-              </article>
-            </div>
-          ) : (
-            <div className="blog-content__empty">
-              <p>노트를 선택해주세요</p>
-            </div>
-          )}
+              </>
+            ) : (
+              <div className="blog-content__empty">
+                <p>노트를 선택해주세요</p>
+              </div>
+            )}
+          </div>
         </main>
       </div>
     </div>
