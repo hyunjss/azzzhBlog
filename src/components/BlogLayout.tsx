@@ -9,23 +9,6 @@ import remarkGfm from 'remark-gfm';
 import 'highlight.js/styles/github-dark.css';
 import './BlogLayout.css';
 
-const CATEGORY_ICONS: Record<string, string> = {
-  '전체': '📋',
-  'JavaScript': '🟨',
-  'TypeScript': '🔷',
-  'React': '⚛️',
-  'FE': '🖥️',
-  'CS': '🧠',
-  '운영체제': '⚙️',
-  '네트워크': '🌐',
-  '자료구조': '🗂️',
-  '알고리즘': '🔍',
-  '기타': '📝',
-};
-
-function getCategoryIcon(cat: string) {
-  return CATEGORY_ICONS[cat] ?? '📁';
-}
 
 export default function BlogLayout() {
   const { slug } = useParams<{ slug?: string }>();
@@ -36,6 +19,7 @@ export default function BlogLayout() {
 
   const [activeCategory, setActiveCategory] = useState('전체');
   const [activePost, setActivePost] = useState<Post | null>(null);
+  const [postLoading, setPostLoading] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     (localStorage.getItem('theme') as 'light' | 'dark') ?? 'light'
   );
@@ -47,21 +31,50 @@ export default function BlogLayout() {
 
   useEffect(() => {
     if (slug) {
-      const post = getPostBySlug(slug);
-      if (post) {
-        setActivePost(post);
-      }
+      setPostLoading(true);
+      getPostBySlug(slug).then(post => {
+        if (post) setActivePost(post);
+        setPostLoading(false);
+      });
     }
   }, [slug]);
+
+  useEffect(() => {
+    const siteName = 'azzzhBlog';
+    const siteDesc = '개발하면서 공부한 것들을 기록하는 공간';
+    const siteUrl = 'https://hhyun.github.io';
+
+    const title = activePost ? `${activePost.title} | ${siteName}` : siteName;
+    const desc = activePost?.description ?? siteDesc;
+    const url = activePost ? `${siteUrl}/post/${activePost.slug}` : siteUrl;
+
+    document.title = title;
+
+    const setMetaContent = (selector: string, value: string) => {
+      const el = document.querySelector<HTMLMetaElement>(selector);
+      if (el) el.content = value;
+    };
+
+    setMetaContent('meta[name="description"]', desc);
+    setMetaContent('meta[property="og:title"]', title);
+    setMetaContent('meta[property="og:description"]', desc);
+    setMetaContent('meta[property="og:url"]', url);
+    setMetaContent('meta[property="og:type"]', activePost ? 'article' : 'website');
+    setMetaContent('meta[name="twitter:title"]', title);
+    setMetaContent('meta[name="twitter:description"]', desc);
+  }, [activePost]);
 
   const filteredPosts: PostMeta[] = activeCategory === '전체'
     ? allPosts
     : allPosts.filter(p => p.category === activeCategory);
 
   function handleSelectPost(post: PostMeta) {
-    const full = getPostBySlug(post.slug);
-    setActivePost(full);
     navigate(`/post/${post.slug}`);
+    setPostLoading(true);
+    getPostBySlug(post.slug).then(full => {
+      if (full) setActivePost(full);
+      setPostLoading(false);
+    });
   }
 
   function handleSelectCategory(cat: string) {
@@ -80,20 +93,20 @@ export default function BlogLayout() {
           <button className="traffic-light traffic-light--max"   aria-label="최대화" />
         </div>
         <span className="titlebar__title">
-          {activePost ? activePost.title : 'hhyun.dev'}
+          {activePost ? activePost.title : 'azzzhBlog'}
         </span>
         <div className="titlebar__actions">
           <button
             className="titlebar__btn"
             onClick={() => navigate('/about')}
             title="소개"
-          >👤</button>
+          >About</button>
           <button
             className="titlebar__btn"
             onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
             title="테마 전환"
           >
-            {theme === 'light' ? '🌙' : '☀️'}
+            {theme === 'light' ? 'Dark' : 'Light'}
           </button>
         </div>
       </div>
@@ -111,7 +124,6 @@ export default function BlogLayout() {
                 className={`sidebar-item${activeCategory === cat && !activePost ? ' active' : ''}`}
                 onClick={() => handleSelectCategory(cat)}
               >
-                <span className="sidebar-item__icon">{getCategoryIcon(cat)}</span>
                 <span className="sidebar-item__label">{cat}</span>
                 <span className="sidebar-item__count">
                   {cat === '전체'
@@ -153,7 +165,11 @@ export default function BlogLayout() {
 
         {/* 오른쪽: 포스트 내용 */}
         <main className="blog-content">
-          {activePost ? (
+          {postLoading ? (
+            <div className="blog-content__empty">
+              <p>불러오는 중...</p>
+            </div>
+          ) : activePost ? (
             <div className="blog-content__inner">
               <header className="blog-content__header">
                 <div className="blog-content__category">{activePost.category}</div>
@@ -180,7 +196,6 @@ export default function BlogLayout() {
             </div>
           ) : (
             <div className="blog-content__empty">
-              <div className="blog-content__empty-icon">📝</div>
               <p>노트를 선택해주세요</p>
             </div>
           )}

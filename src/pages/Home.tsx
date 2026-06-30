@@ -23,7 +23,7 @@ export default function Home() {
   return (
     <main className="home container">
       <section className="home__hero">
-        <h1>hhyun.dev</h1>
+        <h1>azzzhBlog</h1>
         <p>프론트엔드 개발과 CS 공부를 기록합니다 ✍️</p>
       </section>
 

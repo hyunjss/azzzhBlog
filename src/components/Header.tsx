@@ -16,7 +16,7 @@ export default function Header() {
   return (
     <header className="header">
       <div className="container header__inner">
-        <Link to="/" className="header__logo">hhyun.dev</Link>
+        <Link to="/" className="header__logo">azzzhBlog</Link>
         <nav className="header__nav">
           <Link to="/" className={pathname === '/' ? 'active' : ''}>홈</Link>
           <Link to="/about" className={pathname === '/about' ? 'active' : ''}>소개</Link>
