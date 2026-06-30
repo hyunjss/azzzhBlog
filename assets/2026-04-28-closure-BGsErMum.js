@@ -1,0 +1,110 @@
+var e=`---
+title: "클로저(Closure)란 무엇인가"
+date: "2026-04-28"
+category: "JavaScript"
+tags: ["closure", "scope", "javascript"]
+description: "클로저의 개념과 실제 활용 방법을 예제와 함께 정리합니다."
+---
+
+## 클로저가 뭔지
+
+클로저(Closure)는 **함수와 그 함수가 선언된 렉시컬 환경의 조합**이라고 한다. 함수가 자기가 만들어질 때의 스코프를 기억하고, 그 스코프 밖에서 호출돼도 안에 있던 변수에 접근할 수 있는 것.
+
+## 기본 예제
+
+\`\`\`javascript
+function outer() {
+  const name = 'hhyun';
+
+  function inner() {
+    console.log(name); // 'hhyun' 출력
+  }
+
+  return inner;
+}
+
+const greet = outer();
+greet(); // 'hhyun' — outer 실행이 끝났지만 name에 접근 가능
+\`\`\`
+
+\`outer()\`가 실행을 마쳤는데도 \`greet\`이 \`name\`에 접근된다는 게 신기했다. 스코프가 살아있는 게 아니라 함수가 그 환경을 들고 있는 거더라.
+
+## 활용 사례
+
+### 1. 데이터 은닉 (캡슐화)
+
+\`\`\`javascript
+function createCounter() {
+  let count = 0; // 외부에서 직접 접근 불가
+
+  return {
+    increment: () => ++count,
+    decrement: () => --count,
+    getCount: () => count,
+  };
+}
+
+const counter = createCounter();
+counter.increment(); // 1
+counter.increment(); // 2
+counter.getCount();  // 2
+\`\`\`
+
+\`count\`를 직접 못 건드리고 메서드로만 조작 가능하게 하는 패턴. \`private\` 변수처럼 쓸 수 있다는 걸 여기서 처음 제대로 이해했다.
+
+### 2. 부분 적용 함수 (Partial Application)
+
+\`\`\`javascript
+function multiply(a: number) {
+  return (b: number) => a * b;
+}
+
+const double = multiply(2);
+const triple = multiply(3);
+
+double(5); // 10
+triple(5); // 15
+\`\`\`
+
+### 3. React에서의 클로저
+
+\`\`\`tsx
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  const handleClick = () => {
+    // handleClick은 count를 클로저로 캡처
+    console.log(count);
+    setCount(count + 1);
+  };
+
+  return <button onClick={handleClick}>{count}</button>;
+}
+\`\`\`
+
+React 쓰다가 stale closure 버그 마주쳤을 때 뭔지 몰랐는데, 클로저 개념을 알고 나니 왜 그게 생기는지 이해됐다.
+
+## 클로저와 메모리
+
+클로저가 참조하는 변수는 GC가 못 건드린다. 그래서 더 이상 안 쓰는 클로저는 \`null\`로 참조를 끊어줘야 메모리가 해제된다는 것도 기억해두자.
+
+\`\`\`javascript
+let closure = (function() {
+  const bigData = new Array(1000000).fill('data');
+  return () => bigData.length;
+})();
+
+// 더 이상 필요 없다면
+closure = null; // 메모리 해제
+\`\`\`
+
+## 정리
+
+| 개념 | 설명 |
+|------|------|
+| 렉시컬 스코프 | 함수가 **정의된** 위치를 기준으로 스코프 결정 |
+| 클로저 | 함수 + 렉시컬 환경의 조합 |
+| 활용 | 데이터 은닉, 커링, 메모이제이션 |
+
+> 클로저를 제대로 이해하고 나니까 React Hook이 왜 그렇게 동작하는지 훨씬 명확하게 보였다.
+`;export{e as default};
