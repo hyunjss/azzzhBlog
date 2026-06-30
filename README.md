@@ -1,73 +1,58 @@
-# React + TypeScript + Vite
+# azzzhBlog
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+개발하면서 공부한 것들을 기록하는 기술 블로그입니다.
 
-Currently, two official plugins are available:
+🔗 **[https://hyunjss.github.io/azzzhBlog](https://hyunjss.github.io/azzzhBlog)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 기술 스택
 
-## React Compiler
+- **React 19** + **TypeScript**
+- **Vite** — 빌드 및 개발 서버
+- **React Router v7** — 클라이언트 사이드 라우팅
+- **react-markdown** + **rehype-highlight** — 마크다운 렌더링 및 코드 하이라이팅
+- **Giscus** — GitHub Discussions 기반 댓글
+- **gh-pages** — GitHub Pages 배포
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 구조
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── components/
+│   └── BlogLayout.tsx   # 메인 3패널 레이아웃 (카테고리 / 목록 / 본문)
+├── pages/
+│   ├── About.tsx
+│   └── PostDetail.tsx
+├── posts/               # 마크다운 포스트 (.md)
+├── utils/
+│   └── posts.ts         # 포스트 로딩 유틸 (빌드타임 메타 + 런타임 본문)
+└── types/
+    └── index.ts
+scripts/
+├── generate-meta.mjs    # 빌드 전 포스트 메타데이터 JSON 생성
+└── generate-og.mjs      # 빌드 후 OG 태그 / JSON-LD / sitemap.xml 생성
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 포스트 작성
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+`src/posts/YYYY-MM-DD-slug.md` 파일을 생성하고 아래 frontmatter를 작성합니다.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```yaml
+---
+title: "제목"
+date: "YYYY-MM-DD"
+category: "CS"
+tags: ["tag1", "tag2"]
+description: "한 줄 설명"
+---
+```
+
+카테고리: `JavaScript` `TypeScript` `React` `FE` `CS` `운영체제` `네트워크` `자료구조` `알고리즘` `기타`
+
+## 개발
+
+```bash
+npm install
+npm run dev      # 개발 서버 (http://localhost:5173)
+npm run build    # 프로덕션 빌드
+npm run deploy   # 빌드 + GitHub Pages 배포
 ```
