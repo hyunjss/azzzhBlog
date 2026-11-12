@@ -43,7 +43,7 @@ export default function BlogLayout() {
 
   useEffect(() => {
     const siteName = 'azzzhBlog';
-    const siteDesc = '개발하면서 공부한 것들을 기록하는 공간';
+    const siteDesc = '프론트엔드 개발 경험과 AI Skill, AI 활용 프로젝트를 기록하는 기술 블로그';
     const siteUrl = 'https://hyunjss.github.io/azzzhBlog';
 
     const title = activePost ? `${activePost.title} | ${siteName}` : siteName;
