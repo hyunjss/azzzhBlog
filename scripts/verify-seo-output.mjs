@@ -14,11 +14,11 @@ const errors = [];
 if (generated.length !== sources.length) errors.push("Article count mismatch: " + generated.length + " generated / " + sources.length + " source");
 for (const file of generated) {
   const html = readFileSync(file, "utf8");
-  const article = html.match(/<article class="markdown-body">([\\s\\S]*?)<\\/article>/)?.[1] || "";
-  const h1 = (html.match(/<h1(?:\\s|>)/g) || []).length;
+  const article = html.match(/<article class="markdown-body">([\s\S]*?)<\/article>/)?.[1] || "";
+  const h1 = (html.match(/<h1(?:\s|>)/g) || []).length;
   const text = article.replace(/<[^>]+>/g, " ").trim();
   if (h1 !== 1) errors.push(file + ": expected exactly one H1, got " + h1);
-  if (text.split(/\\s+/).filter(Boolean).length < 30) errors.push(file + ": article content appears empty");
+  if (text.split(/\s+/).filter(Boolean).length < 30) errors.push(file + ": article content appears empty");
   if (!html.includes('rel="canonical"')) errors.push(file + ": canonical missing");
   if (!html.includes('"@type":"BlogPosting"')) errors.push(file + ": BlogPosting JSON-LD missing");
   if (!html.includes('class="markdown-body"')) errors.push(file + ": rendered Markdown missing");
