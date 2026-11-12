@@ -28,5 +28,5 @@ const sitemap = readFileSync(join(dist, "sitemap.xml"), "utf8");
 const robots = readFileSync(join(dist, "robots.txt"), "utf8");
 if ((sitemap.match(/<loc>/g) || []).length !== sources.length + 1) errors.push("Sitemap URL count mismatch");
 if (!robots.includes("Sitemap: https://hyunjss.github.io/azzzhBlog/sitemap.xml")) errors.push("robots.txt sitemap URL missing");
-if (errors.length) { console.error(errors.join("\\n")); process.exit(1); }
+if (errors.length) { console.error(errors.join("\n")); process.exit(1); }
 console.log("Verified " + generated.length + " standalone article pages, H1, content, canonical, JSON-LD, sitemap and robots.txt.");
