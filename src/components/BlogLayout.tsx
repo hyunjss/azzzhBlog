@@ -78,10 +78,6 @@ export default function BlogLayout() {
     ? allPosts
     : allPosts.filter(p => p.category === activeCategory);
 
-  function handleSelectPost(post: PostMeta) {
-    navigate(`/post/${post.slug}`);
-  }
-
   function handleSelectCategory(cat: string) {
     setActiveCategory(cat);
     setSidebarOpen(false);
