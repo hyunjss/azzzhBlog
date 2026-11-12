@@ -48,7 +48,7 @@ export default function BlogLayout() {
 
     const title = activePost ? `${activePost.title} | ${siteName}` : siteName;
     const desc = activePost?.description ?? siteDesc;
-    const url = activePost ? `${siteUrl}/post/${activePost.slug}` : siteUrl;
+    const url = activePost ? `${siteUrl}/post/${activePost.slug}/` : `${siteUrl}/`;
 
     document.title = title;
 
