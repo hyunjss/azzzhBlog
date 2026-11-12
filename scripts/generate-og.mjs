@@ -112,6 +112,18 @@ const home = updateHead(original, {
   structured: jsonLd({ "@context": "https://schema.org", "@type": "Blog", name: siteName, description: siteDescription, url: site + "/" }),
 }).replace('<div id="root"></div>', '<div id="root"></div><div id="seo-fallback">' + layout(null) + "</div>");
 writeFileSync(join(dist, "index.html"), home);
+
+const aboutUrl = site + "/about/";
+const aboutHtml = updateHead(staticShell, {
+  title: "About | " + siteName,
+  description: "azzzhBlog와 운영자 소개",
+  url: aboutUrl,
+  type: "website",
+  structured: jsonLd({ "@context": "https://schema.org", "@type": "AboutPage", name: "About | " + siteName, url: aboutUrl }),
+}).replace('<div id="root"></div>', '<div id="root"><main class="about-wrap"><div class="about"><a class="about__back" href="' + base + '">← 목록으로</a><h1>안녕하세요</h1><p class="about__intro">프론트엔드 개발자 <strong>hhyun</strong>입니다.<br />공부한 내용을 기록하고 공유하는 블로그입니다.</p><section class="about__section"><h2>기술 스택</h2><div class="about__skills">' + ["React", "TypeScript", "JavaScript", "HTML/CSS", "Vite"].map(skill => '<span class="skill-badge">' + escape(skill) + '</span>').join("") + '</div></section><section class="about__section"><h2>주로 다루는 주제</h2><ul><li>프론트엔드 개발 (React, TypeScript)</li><li>CS 이론 (운영체제, 네트워크, 자료구조)</li><li>알고리즘 & 문제풀이</li></ul></section><section class="about__section"><h2>Links</h2><a href="https://github.com/hyunjss" target="_blank" rel="noreferrer" class="about__link">GitHub →</a></section></div></main></div>');
+mkdirSync(join(dist, "about"), { recursive: true });
+writeFileSync(join(dist, "about", "index.html"), aboutHtml);
+
 const sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n<url><loc>' + site + '/</loc><priority>1.0</priority></url>\n' +
   posts.map(p => '<url><loc>' + escape(p.url) + '</loc>' + (p.date ? '<lastmod>' + escape(p.date) + '</lastmod>' : "") + '<priority>0.8</priority></url>').join("\n") + "\n</urlset>\n";
 writeFileSync(join(dist, "sitemap.xml"), sitemap);
