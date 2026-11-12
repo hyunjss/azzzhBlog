@@ -8,11 +8,11 @@
     "predev": "npm run generate-meta",
     "dev": "vite",
     "prebuild": "npm run generate-meta",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && npm run generate-og",
     "lint": "eslint .",
     "preview": "vite preview",
     "generate-og": "node scripts/generate-og.mjs",
-    "predeploy": "npm run build && npm run generate-og",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
