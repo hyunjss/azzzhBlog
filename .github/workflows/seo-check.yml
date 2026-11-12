@@ -1,0 +1,37 @@
+name: SEO and lightweight build verification
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout main baseline
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: baseline
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            baseline/package-lock.json
+      - name: Build main baseline
+        working-directory: baseline
+        run: |
+          npm ci
+          npm run build
+      - name: Build feature branch
+        run: |
+          npm ci
+          npm run build
+      - name: Verify SEO output
+        run: node scripts/verify-seo-output.mjs
+      - name: Compare build sizes
+        run: node scripts/report-build-size.mjs baseline/dist dist
