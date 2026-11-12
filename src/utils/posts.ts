@@ -5,8 +5,18 @@ import postsMeta from '../generated/posts-meta.json';
 const postFilesLazy = import.meta.glob('../posts/**/*.md', { query: '?raw', import: 'default' });
 
 function extractContent(raw: string): string {
-  const match = raw.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n([\s\S]*)$/);
-  return match ? match[1] : raw;
+  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
+  if (!match) return raw;
+
+  const titleMatch = match[1].match(/^title:\s*["']?(.*?)["']?\s*$/m);
+  const title = titleMatch?.[1]?.trim();
+  const content = match[2];
+  const firstHeading = content.match(/^#\s+(.+?)\s*\r?\n/);
+
+  // The frontmatter title is already rendered as the page's H1.
+  return title && firstHeading?.[1]?.trim() === title
+    ? content.slice(firstHeading[0].length)
+    : content;
 }
 
 export function getAllPosts(): PostMeta[] {
