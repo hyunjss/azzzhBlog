@@ -159,10 +159,10 @@ export default function BlogLayout() {
           </div>
           <div className="blog-list__items">
             {filteredPosts.length > 0 ? filteredPosts.map(post => (
-              <button
+              <a
                 key={post.slug}
+                href={`${import.meta.env.BASE_URL}post/${encodeURIComponent(post.slug)}/`}
                 className={`post-item${activePost?.slug === post.slug ? ' active' : ''}`}
-                onClick={() => handleSelectPost(post)}
               >
                 <div className="post-item__title">{post.title}</div>
                 <div className="post-item__date">{post.date} · {post.readingTime}분</div>
@@ -172,7 +172,7 @@ export default function BlogLayout() {
                     <span key={tag} className="post-tag">#{tag}</span>
                   ))}
                 </div>
-              </button>
+              </a>
             )) : (
               <p className="blog-list__empty">포스트가 없습니다.</p>
             )}
