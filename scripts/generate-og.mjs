@@ -47,7 +47,7 @@ function updateHead(html, { title, description, url, type, structured }) {
     [/name="twitter:description"[^>]*>/i, 'name="twitter:description" content="' + escape(description) + '" />'],
   ];
   for (const [pattern, value] of meta) out = out.replace(new RegExp("<meta\\s+" + pattern.source, "i"), "<meta " + value);
-  out = out.replace(/<link\\s+rel="canonical"[^>]*>\\s*/i, "");
+  out = out.replace(/<link\s+rel="canonical"[^>]*>\s*/i, "");
   return out.replace("</head>", '<link rel="canonical" href="' + escape(url) + '" />' + structured + "</head>");
 }
 const posts = markdownFiles(postsDir).map(path => {
@@ -80,7 +80,7 @@ function layout(post) {
   return '<div class="blog-layout' + (post ? " blog-layout--post-active" : "") + '"><div class="titlebar"><div class="traffic-lights"><span class="traffic-light traffic-light--close"></span><span class="traffic-light traffic-light--min"></span><span class="traffic-light traffic-light--max"></span></div><a class="titlebar__title" href="' + base + '">' + escape(post?.title || siteName) + '</a><div class="titlebar__actions"><a class="titlebar__btn" href="' + base + '">Home</a></div></div><div class="blog-body"><aside class="blog-sidebar"><div class="blog-sidebar__section-label">카테고리</div><nav class="blog-sidebar__nav">' + categoryNav + '</nav></aside><section class="blog-list"><div class="blog-list__header"><h2>전체</h2><div class="blog-list__count">' + posts.length + '개의 노트</div></div><div class="blog-list__items">' + list + '</div></section><main class="blog-content"><div class="blog-content__inner">' + content + "</div></main></div></div>";
 }
 const original = readFileSync(join(dist, "index.html"), "utf8");
-const staticShell = original.replace(/\\s*<script\\b(?=[^>]*\\btype="module")(?=[^>]*\\bsrc=)[^>]*><\\/script>/g, "");
+const staticShell = original.replace(/\s*<script\b(?=[^>]*\btype="module")(?=[^>]*\bsrc=)[^>]*><\/script>/g, "").replace(/<script>document.documentElement.classList.add\('js'\)<\/script>/g, "");
 for (const post of posts) {
   const data = {
     "@context": "https://schema.org", "@type": "BlogPosting",
