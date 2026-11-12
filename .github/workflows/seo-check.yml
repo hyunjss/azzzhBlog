@@ -1,0 +1,32 @@
+name: SEO build verification
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build application
+        run: npm run build
+      - name: Generate static SEO documents
+        run: npm run generate-og
+      - name: Verify generated SEO output
+        run: |
+          test -s dist/index.html
+          test -s dist/sitemap.xml
+          test -s dist/robots.txt
+          test -s dist/post/ai-era-developer/index.html
+          grep -q '<h1>AI 시대, 개발자로 살아간다는 것</h1>' dist/post/ai-era-developer/index.html
+          grep -q 'rel="canonical"' dist/post/ai-era-developer/index.html
+          grep -q 'application/ld+json' dist/post/ai-era-developer/index.html
+          grep -q '/post/ai-era-developer/' dist/sitemap.xml
