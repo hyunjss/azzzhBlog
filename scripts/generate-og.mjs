@@ -124,8 +124,8 @@ const aboutHtml = updateHead(staticShell, {
 mkdirSync(join(dist, "about"), { recursive: true });
 writeFileSync(join(dist, "about", "index.html"), aboutHtml);
 
-const sitemap = '<?xml version="1.0" encoding="UTF-8"?>\\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\\n<url><loc>' + site + '/</loc><priority>1.0</priority></url>\\n<url><loc>' + aboutUrl + '</loc><priority>0.5</priority></url>\\n' +
-  posts.map(p => '<url><loc>' + escape(p.url) + '</loc>' + (p.date ? '<lastmod>' + escape(p.date) + '</lastmod>' : "") + '<priority>0.8</priority></url>').join("\\n") + "\\n</urlset>\\n";
+const sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n<url><loc>' + site + '/</loc><priority>1.0</priority></url>\n<url><loc>' + aboutUrl + '</loc><priority>0.5</priority></url>\n' +
+  posts.map(p => '<url><loc>' + escape(p.url) + '</loc>' + (p.date ? '<lastmod>' + escape(p.date) + '</lastmod>' : "") + '<priority>0.8</priority></url>').join("\n") + "\n</urlset>\n";
 writeFileSync(join(dist, "sitemap.xml"), sitemap);
-writeFileSync(join(dist, "robots.txt"), "User-agent: *\\nAllow: /\\nSitemap: " + site + "/sitemap.xml\\n");
+writeFileSync(join(dist, "robots.txt"), "User-agent: *\nAllow: /\nSitemap: " + site + "/sitemap.xml\n");
 console.log("Generated " + posts.length + " standalone static article pages.");
