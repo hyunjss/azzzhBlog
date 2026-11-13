@@ -52,6 +52,7 @@ for (const file of generated) {
   if (!html.includes('"@type":"BlogPosting"')) errors.push(file + ": BlogPosting JSON-LD missing");
   if (!article) errors.push(file + ": rendered Markdown article missing");
   if (/<script type="module"/i.test(html)) errors.push(file + ": unexpected React module script");
+  if (/<link\s+rel="modulepreload"/i.test(html)) errors.push(file + ": unexpected JavaScript modulepreload link");
   if (!html.includes('data-repo="hyunjss/azzzhBlog"') ||
       !html.includes('data-repo-id="R_kgDOSOcAvg"') ||
       !html.includes('data-category="Comment"') ||
@@ -78,6 +79,7 @@ if (aboutHtml) {
   if (!aboutHtml.includes("프론트엔드 개발자")) errors.push("About page introduction missing");
   if (!aboutHtml.includes("https://github.com/hyunjss")) errors.push("About page GitHub link missing");
   if (/<script type="module"/i.test(aboutHtml)) errors.push("About page unexpectedly loads React module script");
+  if (/<link\s+rel="modulepreload"/i.test(aboutHtml)) errors.push("About page unexpectedly includes JavaScript modulepreload link");
 }
 
 const home = readFileSync(join(dist, "index.html"), "utf8");
