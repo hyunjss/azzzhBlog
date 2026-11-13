@@ -21,7 +21,7 @@ function collectMarkdownFiles(dir, base) {
 }
 
 function calcReadingTime(content) {
-  return Math.max(1, Math.ceil(content.trim().split(/\\s+/).filter(Boolean).length / 200));
+  return Math.max(1, Math.ceil(content.trim().split(/\s+/).filter(Boolean).length / 200));
 }
 
 const relativePaths = collectMarkdownFiles(postsDir, postsDir);
@@ -50,5 +50,5 @@ if (duplicates.length) {
 
 const outputDir = join(root, "src", "generated");
 mkdirSync(outputDir, { recursive: true });
-writeFileSync(join(outputDir, "posts-meta.json"), JSON.stringify(posts, null, 2) + "\\n", "utf8");
+writeFileSync(join(outputDir, "posts-meta.json"), JSON.stringify(posts, null, 2) + "\n", "utf8");
 console.log("Generated metadata for " + posts.length + " posts; slugs are unique.");
