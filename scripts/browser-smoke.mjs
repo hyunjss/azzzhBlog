@@ -43,6 +43,10 @@ try {
   const visibleCategories = await page.locator(".post-item:visible").evaluateAll(items => [...new Set(items.map(el => el.getAttribute("data-post-category")))]);
   if (visibleCategories.some(value => value !== categoryName)) throw new Error("Category filter displayed unrelated posts");
 
+  await menu.click();
+  if (!await page.locator(".blog-sidebar").evaluate(el => el.classList.contains("blog-sidebar--open"))) {
+    throw new Error("Mobile category menu did not reopen");
+  }
   await page.locator("[data-category]").first().click();
   const themeButton = page.locator("[data-theme-toggle]");
   await themeButton.click();
