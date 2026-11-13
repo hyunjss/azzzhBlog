@@ -35,3 +35,19 @@ jobs:
         run: node scripts/verify-seo-output.mjs
       - name: Compare build sizes
         run: node scripts/report-build-size.mjs baseline/dist dist
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright
+          npx playwright install --with-deps chromium
+      - name: Start static preview
+        run: |
+          npm run preview -- --host 127.0.0.1 > /tmp/azzzh-preview.log 2>&1 &
+          echo $! > /tmp/azzzh-preview.pid
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/azzzhBlog/ > /dev/null; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/azzzh-preview.log
+          exit 1
+      - name: Run browser smoke tests
+        run: node scripts/browser-smoke.mjs
