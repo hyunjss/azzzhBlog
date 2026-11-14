@@ -1,12 +1,10 @@
-import { useNavigate } from 'react-router-dom';
 import './About.css';
 
 export default function About() {
-  const navigate = useNavigate();
   return (
     <div className="about-wrap">
       <div className="about">
-        <button className="about__back" onClick={() => navigate(-1)}>← 돌아가기</button>
+        <button className="about__back" onClick={() => window.history.back()}>← 돌아가기</button>
         <h1>안녕하세요 👋</h1>
         <p className="about__intro">
           프론트엔드 개발자 <strong>hhyun</strong>입니다.<br />

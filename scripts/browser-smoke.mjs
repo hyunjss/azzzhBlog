@@ -10,6 +10,15 @@ try {
   const homeResponse = await page.goto(base, { waitUntil: "networkidle" });
   if (!homeResponse?.ok()) throw new Error("Homepage did not return a successful response");
 
+  // The interactive homepage uses a small native hash route for About.
+  await page.locator(".blog-layout").waitFor();
+  await page.locator(".titlebar__btn").first().click();
+  await page.waitForURL(/#\/about$/);
+  if (await page.locator(".about h1").count() !== 1) throw new Error("Hash-based About navigation failed");
+  await page.locator(".about__back").click();
+  await page.waitForURL(base);
+  if (await page.locator(".blog-layout").count() !== 1) throw new Error("Hash-based return navigation failed");
+
   // Discover a real generated article URL from the sitemap.
   const sitemapResponse = await page.request.get(base + "sitemap.xml");
   if (!sitemapResponse.ok()) throw new Error("Sitemap did not return a successful response");
@@ -104,7 +113,7 @@ try {
   if (await page.locator(".blog-sidebar").isHidden()) throw new Error("Desktop sidebar is hidden");
 
   if (errors.length) throw new Error("Browser runtime errors: " + errors.join("; "));
-  console.log("Browser smoke tests passed: static article direct entry/refresh, mobile menu, category filter, theme, browser history, About direct entry/refresh, GitHub Pages links, desktop layout.");
+  console.log("Browser smoke tests passed: native hash-based About navigation, static article direct entry/refresh, mobile menu, category filter, theme, browser history, About direct entry/refresh, GitHub Pages links, desktop layout.");
 } finally {
   await browser.close();
 }

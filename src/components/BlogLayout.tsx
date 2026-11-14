@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { getAllPosts, getAllCategories } from '../utils/posts';
 import type { PostMeta } from '../types';
 import './BlogLayout.css';
 
 export default function BlogLayout() {
-  const navigate = useNavigate();
   const allPosts = getAllPosts();
   const categories = ['전체', ...getAllCategories()];
 
@@ -55,7 +53,6 @@ export default function BlogLayout() {
   function handleSelectCategory(cat: string) {
     setActiveCategory(cat);
     setSidebarOpen(false);
-    navigate('/');
   }
 
   return (
@@ -69,7 +66,7 @@ export default function BlogLayout() {
         <button className="titlebar__hamburger" onClick={() => setSidebarOpen(o => !o)} aria-label="메뉴">☰</button>
         <span className="titlebar__title">azzzhBlog</span>
         <div className="titlebar__actions">
-          <button className="titlebar__btn" onClick={() => navigate('/about')} title="소개">About</button>
+          <button className="titlebar__btn" onClick={() => { window.location.hash = '/about'; }} title="소개">About</button>
           <button className="titlebar__btn" onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')} title="테마 전환">
             {theme === 'light' ? 'Dark' : 'Light'}
           </button>
