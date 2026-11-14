@@ -76,7 +76,8 @@ assert(rssItems.length === articleUrls.length,
   "RSS item count (" + rssItems.length + ") does not match sitemap article count (" + articleUrls.length + ").");
 
 const sampleArticleUrl = articleUrls[0];
-const sampleArticlePath = new URL(sampleArticleUrl).pathname;
+const sitePath = new URL(site).pathname.replace(/\/$/, "");
+const sampleArticlePath = new URL(sampleArticleUrl).pathname.slice(sitePath.length);
 const article = await fetchPublished(sampleArticlePath);
 const expectedCanonical = '<link rel="canonical" href="' + sampleArticleUrl + '"';
 assert(article.body.includes(expectedCanonical), "Article canonical URL does not match sitemap: " + sampleArticleUrl);
