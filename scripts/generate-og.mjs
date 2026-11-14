@@ -27,7 +27,10 @@ function markdownFiles(dir, parent = dir) {
 function renderMarkdown(content) {
   return renderToStaticMarkup(React.createElement(ReactMarkdown, {
     remarkPlugins: [remarkGfm], rehypePlugins: [rehypeHighlight, rehypeSlug],
-    components: { h1: "h2" },
+    components: {
+      h1: "h2",
+      pre: ({ node, ...props }) => React.createElement("pre", { ...props, tabIndex: 0 }),
+    },
   }, content));
 }
 function jsonLd(data) {

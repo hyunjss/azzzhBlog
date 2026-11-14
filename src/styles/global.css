@@ -43,7 +43,7 @@
 
   --text:           #f5f5f7;
   --text-secondary: #e5e5ea;
-  --text-muted:     #8e8e93;
+  --text-muted:     #aaaaaf;
 
   --border:         rgba(255,255,255,0.07);
   --border-strong:  rgba(255,255,255,0.12);
@@ -57,7 +57,7 @@
   --hover-bg:       rgba(255,255,255,0.05);
 
   --tag-bg:         rgba(10,132,255,0.15);
-  --tag-text:       #409cff;
+  --tag-text:       #8ac2ff;
   --link:           #409cff;
 }
 
