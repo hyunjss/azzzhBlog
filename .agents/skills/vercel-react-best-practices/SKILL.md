@@ -24,7 +24,7 @@ This repository vendors the Vercel Engineering skill for agent use.
 
 ## How agents should use this skill
 
-Read the full guide in AGENTS.md and consult the detailed examples in rules/ as needed. Follow the highest-impact relevant rules first.
+Read the full guide in AGENTS.md for the detailed rules and code examples. Follow the highest-impact relevant rules first.
 
 This repository uses React + Vite, not Next.js. Apply React/browser guidance directly; do not impose Next.js-only or server-component patterns where the project has no corresponding runtime.
 
