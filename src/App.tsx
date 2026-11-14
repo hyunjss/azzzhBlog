@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import BlogLayout from './components/BlogLayout';
-import About from './pages/About';
 import './styles/global.css';
+
+const About = lazy(() => import('./pages/About'));
 
 export default function App() {
   useEffect(() => {
@@ -14,7 +15,14 @@ export default function App() {
       <Routes>
         <Route path="/" element={<BlogLayout />} />
         <Route path="/post/:slug" element={<BlogLayout />} />
-        <Route path="/about" element={<About />} />
+        <Route
+          path="/about"
+          element={
+            <Suspense fallback={null}>
+              <About />
+            </Suspense>
+          }
+        />
       </Routes>
     </HashRouter>
   );
