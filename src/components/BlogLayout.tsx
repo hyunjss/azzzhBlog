@@ -8,6 +8,7 @@ export default function BlogLayout() {
   const categories = ['전체', ...getAllCategories()];
 
   const [activeCategory, setActiveCategory] = useState('전체');
+  const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     (localStorage.getItem('theme') as 'light' | 'dark') ?? 'light'
@@ -46,9 +47,17 @@ export default function BlogLayout() {
     canonical.href = siteUrl + '/';
   }, []);
 
-  const filteredPosts: PostMeta[] = activeCategory === '전체'
-    ? allPosts
-    : allPosts.filter(p => p.category === activeCategory);
+  const normalizedQuery = searchQuery.trim().toLocaleLowerCase('ko-KR');
+  const filteredPosts: PostMeta[] = allPosts.filter(post => {
+    const matchesCategory = activeCategory === '전체' || post.category === activeCategory;
+    if (!matchesCategory) return false;
+    if (!normalizedQuery) return true;
+
+    const searchableText = [post.title, post.description, post.category, ...post.tags]
+      .join(' ')
+      .toLocaleLowerCase('ko-KR');
+    return normalizedQuery.split(/\s+/).every(term => searchableText.includes(term));
+  });
 
   function handleSelectCategory(cat: string) {
     setActiveCategory(cat);
@@ -98,7 +107,16 @@ export default function BlogLayout() {
           <section className="blog-list">
             <div className="blog-list__header">
               <h2>{activeCategory}</h2>
-              <div className="blog-list__count">{filteredPosts.length}개의 노트</div>
+              <div className="blog-list__count" aria-live="polite">{filteredPosts.length}개의 노트</div>
+              <label className="blog-search">
+                <input
+                  type="search"
+                  value={searchQuery}
+                  onChange={event => setSearchQuery(event.target.value)}
+                  placeholder="제목, 설명, 태그 검색"
+                  aria-label="포스트 검색"
+                />
+              </label>
             </div>
             <div className="blog-list__items">
               {filteredPosts.length > 0 ? filteredPosts.map(post => (
@@ -114,7 +132,7 @@ export default function BlogLayout() {
                     {post.tags.slice(0, 3).map(tag => <span key={tag} className="post-tag">#{tag}</span>)}
                   </div>
                 </a>
-              )) : <p className="blog-list__empty">포스트가 없습니다.</p>}
+              )) : <p className="blog-list__empty">{normalizedQuery ? '검색 결과가 없습니다.' : '포스트가 없습니다.'}</p>}
             </div>
           </section>
 

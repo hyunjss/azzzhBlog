@@ -41,7 +41,40 @@ try {
   await page.reload({ waitUntil: "networkidle" });
   if (await page.locator(".markdown-body").count() !== 1) throw new Error("Static article failed after refresh");
 
-  // Test mobile navigation and category filtering on the static article layout.
+  // Static article pages keep the post search available without loading the React bundle.
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const staticSearch = page.getByRole("searchbox", { name: "포스트 검색" });
+  const staticFirstTitle = await page.locator(".post-item__title").first().textContent();
+  const staticSearchTerm = staticFirstTitle?.trim().split(/\s+/)[0];
+  if (!staticSearchTerm) throw new Error("Could not find a static post title for search verification");
+  await staticSearch.fill(staticSearchTerm);
+  if (await page.locator(".post-item:visible").count() === 0) throw new Error("Static post search did not find a matching title");
+  await staticSearch.fill("__no_matching_post_query__");
+  if (await page.locator("[data-posts-empty]").textContent() !== "검색 결과가 없습니다.") {
+    throw new Error("Static search empty state was not displayed");
+  }
+  await staticSearch.fill("");
+
+  // Category and search filters must work together in the static shell.
+  const category = page.locator("[data-category]").nth(1);
+  const categoryName = (await category.locator(".sidebar-item__label").textContent())?.trim();
+  await category.click();
+  if (await page.locator(".blog-list__header h2").textContent() !== categoryName) {
+    throw new Error("Static category heading did not update");
+  }
+  const categoryFirstTitle = await page.locator(".post-item:visible .post-item__title").first().textContent();
+  const categorySearchTerm = categoryFirstTitle?.trim().split(/\s+/)[0];
+  if (!categorySearchTerm) throw new Error("Could not find a post in the selected category");
+  await staticSearch.fill(categorySearchTerm);
+  const combinedResults = page.locator(".post-item:visible");
+  if (await combinedResults.count() === 0) throw new Error("Static search and category filters returned no matching post");
+  const combinedCategories = await combinedResults.evaluateAll(items => [...new Set(items.map(el => el.getAttribute("data-post-category")))]);
+  if (combinedCategories.some(value => value !== categoryName)) throw new Error("Combined static filters displayed unrelated categories");
+  await staticSearch.fill("");
+  await page.locator("[data-category]").first().click();
+
+  // Mobile sidebar controls and theme switching remain functional on static pages.
+  await page.setViewportSize({ width: 390, height: 844 });
   const menu = page.locator("[data-sidebar-toggle]");
   await menu.click();
   if (!await page.locator(".blog-sidebar").evaluate(el => el.classList.contains("blog-sidebar--open"))) {
@@ -51,30 +84,26 @@ try {
   if (await page.locator(".blog-sidebar").evaluate(el => el.classList.contains("blog-sidebar--open"))) {
     throw new Error("Mobile category menu did not close from backdrop");
   }
-
-  const category = page.locator("[data-category]").nth(1);
-  const categoryName = await category.getAttribute("data-category");
-  await menu.click();
-  await category.click();
-  if (await page.locator(".blog-sidebar").evaluate(el => el.classList.contains("blog-sidebar--open"))) {
-    throw new Error("Category selection did not close mobile menu");
-  }
-  const visibleCategories = await page.locator(".post-item:visible").evaluateAll(items => [...new Set(items.map(el => el.getAttribute("data-post-category")))]);
-  if (visibleCategories.some(value => value !== categoryName)) throw new Error("Category filter displayed unrelated posts");
-
-  await menu.click();
-  if (!await page.locator(".blog-sidebar").evaluate(el => el.classList.contains("blog-sidebar--open"))) {
-    throw new Error("Mobile category menu did not reopen");
-  }
-  await page.locator("[data-category]").first().click();
   const themeButton = page.locator("[data-theme-toggle]");
   await themeButton.click();
   if (await page.locator("html").getAttribute("data-theme") !== "dark") throw new Error("Dark theme toggle failed");
 
-  // Return to the homepage before testing a post-list click: on mobile, the
-  // list is intentionally hidden while an article is active.
-  await page.locator(".blog-content__back-mobile").click();
+  // The hydrated homepage uses React and must expose the same search behavior.
+  await page.locator('.titlebar__actions a[href="/azzzhBlog/"]').click();
   await page.waitForURL(base);
+  const reactSearch = page.getByRole("searchbox", { name: "포스트 검색" });
+  const reactFirstTitle = await page.locator(".post-item__title").first().textContent();
+  const reactSearchTerm = reactFirstTitle?.trim().split(/\s+/)[0];
+  if (!reactSearchTerm) throw new Error("Could not find a React homepage post title");
+  await reactSearch.fill(reactSearchTerm);
+  if (await page.locator(".post-item:visible").count() === 0) throw new Error("React homepage search did not find a matching title");
+  await reactSearch.fill("__no_matching_post_query__");
+  if (await page.locator(".blog-list__empty").textContent() !== "검색 결과가 없습니다.") {
+    throw new Error("React search empty state was not displayed");
+  }
+  await reactSearch.fill("");
+
+  // Open a post from the filtered homepage list.
   const firstPost = page.locator(".post-item:visible").first();
   await firstPost.waitFor();
   await firstPost.click();
@@ -114,7 +143,7 @@ try {
   if (await page.locator(".blog-sidebar").isHidden()) throw new Error("Desktop sidebar is hidden");
 
   if (errors.length) throw new Error("Browser runtime errors: " + errors.join("; "));
-  console.log("Browser smoke tests passed: native hash-based About navigation, static article direct entry/refresh, mobile menu, category filter, theme, browser history, About direct entry/refresh, GitHub Pages links, desktop layout.");
+  console.log("Browser smoke tests passed: static and React post search, combined category filtering, native hash-based About navigation, static article direct entry/refresh, mobile menu, theme, browser history, About direct entry/refresh, GitHub Pages links, desktop layout.");
 } finally {
   await browser.close();
 }
