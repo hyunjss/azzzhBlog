@@ -108,7 +108,7 @@ for (const post of posts) {
   mkdirSync(out, { recursive: true });
   writeFileSync(join(out, "index.html"), html);
 }
-const home = updateHead(original, {
+const home = updateHead(staticShell, {
   title: siteName, description: siteDescription, url: site + "/",
   type: "website",
   structured: jsonLd({ "@context": "https://schema.org", "@type": "Blog", name: siteName, description: siteDescription, url: site + "/" }),
