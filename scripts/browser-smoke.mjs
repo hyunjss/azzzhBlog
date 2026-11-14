@@ -68,14 +68,39 @@ try {
   if (await page.locator("html").getAttribute("data-theme") !== "light") throw new Error("Light theme toggle failed");
 
   const menu = page.locator("[data-sidebar-toggle]");
+  const sidebar = page.locator(".blog-sidebar");
+  const categoryButtons = page.locator("[data-category]");
+  if (await menu.getAttribute("aria-expanded") !== "false") throw new Error("Mobile menu initial expanded state is incorrect");
+  if (await sidebar.getAttribute("aria-hidden") !== "true" || !(await sidebar.evaluate(el => el.inert))) {
+    throw new Error("Closed mobile sidebar remains exposed to assistive technology or keyboard focus");
+  }
   await menu.click();
-  if (!await page.locator(".blog-sidebar").evaluate(el => el.classList.contains("blog-sidebar--open"))) {
+  if (!await sidebar.evaluate(el => el.classList.contains("blog-sidebar--open"))) {
     throw new Error("Mobile category menu did not open");
   }
+  if (await menu.getAttribute("aria-expanded") !== "true" || await sidebar.getAttribute("aria-hidden") !== "false" || await sidebar.evaluate(el => el.inert)) {
+    throw new Error("Open mobile sidebar accessibility state is incorrect");
+  }
+  await page.waitForFunction(() => document.activeElement?.matches("[data-category]"));
+  const firstCategory = categoryButtons.first();
+  const lastCategory = categoryButtons.last();
+  await firstCategory.focus();
+  await page.keyboard.press("Shift+Tab");
+  if (!(await lastCategory.evaluate(el => el === document.activeElement))) throw new Error("Mobile sidebar reverse tab did not wrap to the last category");
+  await page.keyboard.press("Tab");
+  if (!(await firstCategory.evaluate(el => el === document.activeElement))) throw new Error("Mobile sidebar tab did not wrap to the first category");
+  await page.keyboard.press("Escape");
+  if (await sidebar.evaluate(el => el.classList.contains("blog-sidebar--open"))) throw new Error("Escape did not close the mobile category menu");
+  if (await menu.getAttribute("aria-expanded") !== "false" || !(await sidebar.evaluate(el => el.inert))) {
+    throw new Error("Closed mobile sidebar accessibility state was not restored");
+  }
+  if (!(await menu.evaluate(el => el === document.activeElement))) throw new Error("Closing the mobile sidebar did not restore focus to the menu button");
+  await menu.click();
   await page.locator("[data-sidebar-backdrop]").click({ position: { x: 350, y: 700 } });
-  if (await page.locator(".blog-sidebar").evaluate(el => el.classList.contains("blog-sidebar--open"))) {
+  if (await sidebar.evaluate(el => el.classList.contains("blog-sidebar--open"))) {
     throw new Error("Mobile category menu did not close from backdrop");
   }
+  if (!(await menu.evaluate(el => el === document.activeElement))) throw new Error("Backdrop close did not restore focus to the menu button");
 
   // Static article links must work as direct entries and after refresh.
   const firstPost = page.locator(".post-item:visible").first();
