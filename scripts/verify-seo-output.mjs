@@ -39,7 +39,7 @@ if (sitemapUrls.length !== expectedUrls.length) errors.push("Sitemap URL count m
 if (!robots.includes("Sitemap: " + site + "/sitemap.xml")) errors.push("robots.txt sitemap URL missing");
 
 const rss = readFileSync(join(dist, "feed.xml"), "utf8");
-const rssItems = [...rss.matchAll(/<item>[\\s\\S]*?<\\/item>/g)].map(match => match[0]);
+const rssItems = [...rss.matchAll(/<item>[\s\S]*?<\/item>/g)].map(match => match[0]);
 if (!rss.startsWith('<?xml version="1.0" encoding="UTF-8"?>')) errors.push("RSS XML declaration missing");
 if (!rss.includes('<rss version="2.0"')) errors.push("RSS 2.0 root element missing");
 if (rssItems.length !== sources.length) errors.push("RSS item count mismatch: " + rssItems.length + " found / " + sources.length + " source");
