@@ -1,4 +1,5 @@
-const site = (process.env.SITE_URL || "https://hyunjss.github.io/azzzhBlog").replace(/\/$/, "");
+const publicSite = "https://hyunjss.github.io/azzzhBlog";
+const site = (process.env.SITE_URL || publicSite).replace(/\/$/, "");
 const maxAttempts = 12;
 const retryDelayMs = 5000;
 
@@ -76,9 +77,9 @@ const about = results.get("/about/");
 assert(home.body.includes("<title>azzzhBlog</title>"), "Homepage title is missing.");
 assert(feed.body.startsWith('<?xml version="1.0" encoding="UTF-8"?>'), "RSS XML declaration is missing.");
 assert(feed.body.includes('<rss version="2.0"'), "RSS 2.0 root element is missing.");
-assert(feed.body.includes(site + "/feed.xml"), "RSS self URL is missing.");
+assert(feed.body.includes(publicSite + "/feed.xml"), "RSS self URL is missing.");
 assert(sitemap.body.includes("<urlset"), "Sitemap urlset is missing.");
-assert(robots.body.includes("Sitemap: " + site + "/sitemap.xml"), "robots.txt sitemap directive is missing.");
+assert(robots.body.includes("Sitemap: " + publicSite + "/sitemap.xml"), "robots.txt sitemap directive is missing.");
 assert(about.body.includes('<link rel="canonical" href="' + site + '/about/"'), "About canonical URL is missing.");
 
 const sitemapUrls = [...sitemap.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
