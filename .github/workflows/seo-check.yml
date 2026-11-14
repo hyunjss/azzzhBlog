@@ -35,13 +35,13 @@ jobs:
         run: node scripts/verify-seo-output.mjs
       - name: Compare build sizes
         run: node scripts/report-build-size.mjs baseline/dist dist
-      - name: Install Playwright Chromium
+      - name: Install browser test and Lighthouse tools
         run: |
-          npm install --no-save --package-lock=false playwright
+          npm install --no-save --package-lock=false playwright @lhci/cli
           npx playwright install --with-deps chromium
-      - name: Start static preview
+      - name: Start feature static preview
         run: |
-          npm run preview -- --host 127.0.0.1 > /tmp/azzzh-preview.log 2>&1 &
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/azzzh-preview.log 2>&1 &
           echo $! > /tmp/azzzh-preview.pid
           for i in {1..30}; do
             if curl --fail --silent http://127.0.0.1:4173/azzzhBlog/ > /dev/null; then exit 0; fi
@@ -51,3 +51,53 @@ jobs:
           exit 1
       - name: Run browser smoke tests
         run: node scripts/browser-smoke.mjs
+      - name: Start main baseline static preview
+        run: |
+          npm --prefix baseline run preview -- --host 127.0.0.1 --port 4174 > /tmp/azzzh-baseline-preview.log 2>&1 &
+          echo $! > /tmp/azzzh-baseline-preview.pid
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4174/azzzhBlog/ > /dev/null; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/azzzh-baseline-preview.log
+          exit 1
+      - name: Run Lighthouse audits
+        run: |
+          ARTICLE_FILE="$(find dist/post -mindepth 2 -maxdepth 2 -name index.html | sort | head -n 1)"
+          if [ -z "$ARTICLE_FILE" ]; then
+            echo "No generated article HTML found in dist/post."
+            exit 1
+          fi
+          ARTICLE_PATH="${ARTICLE_FILE#dist}"
+          ARTICLE_URL="http://127.0.0.1:4173${ARTICLE_PATH}"
+          cat > /tmp/lighthouserc.json <<EOF
+          {
+            "ci": {
+              "collect": {
+                "url": [
+                  "http://127.0.0.1:4174/azzzhBlog/",
+                  "http://127.0.0.1:4173/azzzhBlog/",
+                  "http://127.0.0.1:4173/azzzhBlog/about/",
+                  "$ARTICLE_URL"
+                ],
+                "numberOfRuns": 3,
+                "settings": {
+                  "chromeFlags": "--no-sandbox"
+                }
+              },
+              "upload": {
+                "target": "filesystem",
+                "outputDir": "lighthouse-reports"
+              }
+            }
+          }
+          EOF
+          npx lhci autorun --config=/tmp/lighthouserc.json
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: lighthouse-reports/
+          if-no-files-found: warn
+          retention-days: 14
