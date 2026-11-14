@@ -1,0 +1,105 @@
+name: Safe dependency remediation
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  statuses: write
+
+jobs:
+  remediate:
+    if: github.event.pull_request.head.ref == 'chore/dependency-remediation-20261114' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Apply non-breaking security updates
+        run: npm audit fix --package-lock-only || echo "Some advisories require a breaking change; continue with compatible updates and report the remainder."
+      - name: Resolve scoped minimatch override in lockfile
+        run: npm install --package-lock-only --force
+      - name: Install exact updated lockfile
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Lint
+        run: npm run lint
+      - name: Generate post-update audit report
+        run: |
+          npm audit --json > npm-audit.json || true
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const audit = JSON.parse(fs.readFileSync('npm-audit.json', 'utf8'));
+          const counts = audit.metadata?.vulnerabilities ?? {};
+          const levels = ['critical', 'high', 'moderate', 'low', 'info'];
+          const lines = [
+            '## Dependency audit after safe updates',
+            '',
+            '| Severity | Count |',
+            '|---|---:|',
+            ...levels.map(level => `| ${level} | ${counts[level] ?? 0} |`),
+            '',
+            '| Package | Severity | Direct | Fix available |',
+            '|---|---|---|---|',
+            ...Object.entries(audit.vulnerabilities ?? {}).map(([name, item]) =>
+              `| ${name} | ${item.severity} | ${item.isDirect ? 'yes' : 'no'} | ${item.fixAvailable ? 'yes' : 'no'} |`
+            )
+          ];
+          const report = lines.join('\\n');
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, report + '\\n');
+          console.log(report);
+          NODE
+      - name: Commit updated lockfile to this PR
+        run: |
+          if git diff --quiet -- package-lock.json; then
+            echo "No compatible lockfile updates were available."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "fix(deps): apply non-breaking security updates"
+            git push origin "HEAD:${GITHUB_HEAD_REF}"
+          fi
+      - name: Verify committed dependency tree
+        run: |
+          npm ci
+          npm run build
+          npm run lint
+          npm audit --json > npm-audit-final.json || true
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const audit = JSON.parse(fs.readFileSync('npm-audit-final.json', 'utf8'));
+          const counts = audit.metadata?.vulnerabilities ?? {};
+          console.log('Final vulnerability counts:', counts);
+          NODE
+      - name: Publish validation status for updated commit
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { stdout } = await exec.getExecOutput('git', ['rev-parse', 'HEAD']);
+            await github.rest.repos.createCommitStatus({
+              owner,
+              repo,
+              sha: stdout.trim(),
+              state: 'success',
+              context: 'dependency-remediation/verify',
+              description: 'Updated lockfile passed npm ci, build, lint, and audit reporting.'
+            });
+      - name: Upload final audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-after-remediation
+          path: npm-audit-final.json
+          if-no-files-found: warn
+          retention-days: 14
