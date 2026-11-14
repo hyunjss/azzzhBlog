@@ -21,7 +21,8 @@ const viewports = [
 const themes = ["light", "dark"];
 const wcagTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 const browser = await chromium.launch({ headless: true });
-const page = await browser.newPage();
+const context = await browser.newContext();
+const page = await context.newPage();
 const violations = [];
 let scans = 0;
 
