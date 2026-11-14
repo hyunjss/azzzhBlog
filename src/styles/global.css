@@ -8,7 +8,7 @@
 
   --text:           #1d1d1f;
   --text-secondary: #3c3c43;
-  --text-muted:     #8e8e93;
+  --text-muted:     #66666b;
 
   --border:         rgba(0,0,0,0.09);
   --border-strong:  rgba(0,0,0,0.16);
@@ -22,7 +22,7 @@
   --hover-bg:       rgba(0,0,0,0.04);
 
   --tag-bg:         rgba(0,122,255,0.09);
-  --tag-text:       #0071e3;
+  --tag-text:       #005bb8;
   --link:           #0071e3;
 
   --radius-sm:      5px;
