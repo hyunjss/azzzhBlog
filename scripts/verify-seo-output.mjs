@@ -38,6 +38,19 @@ for (const url of sitemapUrls) {
 if (sitemapUrls.length !== expectedUrls.length) errors.push("Sitemap URL count mismatch: " + sitemapUrls.length + " found / " + expectedUrls.length + " expected");
 if (!robots.includes("Sitemap: " + site + "/sitemap.xml")) errors.push("robots.txt sitemap URL missing");
 
+const rss = readFileSync(join(dist, "feed.xml"), "utf8");
+const rssItems = [...rss.matchAll(/<item>[\\s\\S]*?<\\/item>/g)].map(match => match[0]);
+if (!rss.startsWith('<?xml version="1.0" encoding="UTF-8"?>')) errors.push("RSS XML declaration missing");
+if (!rss.includes('<rss version="2.0"')) errors.push("RSS 2.0 root element missing");
+if (rssItems.length !== sources.length) errors.push("RSS item count mismatch: " + rssItems.length + " found / " + sources.length + " source");
+if (!rss.includes("<title>azzzhBlog</title>") || !rss.includes("<language>ko</language>")) errors.push("RSS channel metadata missing");
+if (!rss.includes(site + "/feed.xml")) errors.push("RSS self link missing");
+for (const slug of sourceSlugs) {
+  const url = site + "/post/" + encodeURIComponent(slug) + "/";
+  if (!rss.includes("<link>" + url + "</link>")) errors.push("RSS post URL missing: " + url);
+}
+
+
 for (const file of generated) {
   const slug = basename(join(file, ".."));
   const html = readFileSync(file, "utf8");
@@ -67,6 +80,7 @@ for (const file of generated) {
   if (!html.includes('data-post-search') || !html.includes('data-search-text=') || !html.includes('data-posts-empty')) {
     errors.push(file + ": static post search controls missing");
   }
+  if (!html.includes('rel="alternate" type="application/rss+xml"') || !html.includes(site + "/feed.xml")) errors.push(file + ": RSS discovery link missing");
   if (!html.includes("data-sidebar-toggle") || !html.includes("data-sidebar-backdrop") || !html.includes("blog-sidebar--open")) {
     errors.push(file + ": mobile sidebar navigation controls missing");
   }
@@ -90,6 +104,7 @@ if (aboutHtml) {
 
 const home = readFileSync(join(dist, "index.html"), "utf8");
 if (!home.includes('id="seo-fallback"')) errors.push("Home static fallback missing");
+if (!home.includes('rel="alternate" type="application/rss+xml"')) errors.push("Home RSS discovery link missing");
 if (!home.includes('"@type":"Blog"')) errors.push("Blog JSON-LD missing on home page");
 if (errors.length) {
   console.error(errors.join("\n"));
