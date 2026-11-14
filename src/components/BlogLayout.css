@@ -272,6 +272,10 @@
 .post-item:last-child {
   border-bottom: none;
 }
+.post-item[hidden],
+.blog-list__empty[hidden] {
+  display: none;
+}
 .post-item:hover {
   background: var(--hover-bg);
 }
