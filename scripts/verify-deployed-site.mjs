@@ -1,4 +1,4 @@
-const site = "https://hyunjss.github.io/azzzhBlog";
+const site = (process.env.SITE_URL || "https://hyunjss.github.io/azzzhBlog").replace(/\/$/, "");
 const maxAttempts = 12;
 const retryDelayMs = 5000;
 
