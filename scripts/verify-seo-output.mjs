@@ -64,6 +64,9 @@ for (const file of generated) {
   if (!html.includes("data-theme-toggle") || !html.includes("data-category") || !html.includes("data-post-category")) {
     errors.push(file + ": static theme/category controls missing");
   }
+  if (!html.includes('data-post-search') || !html.includes('data-search-text=') || !html.includes('data-posts-empty')) {
+    errors.push(file + ": static post search controls missing");
+  }
   if (!html.includes("data-sidebar-toggle") || !html.includes("data-sidebar-backdrop") || !html.includes("blog-sidebar--open")) {
     errors.push(file + ": mobile sidebar navigation controls missing");
   }
