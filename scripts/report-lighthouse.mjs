@@ -100,7 +100,7 @@ for (const [key, entries] of groups) {
 
 const homepagePath = '/azzzhBlog/'
 const baseline = summaries.get(`main:${homepagePath}`)
-const featureHomepage = summaries.get(`pr:${homepagePath}')
+const featureHomepage = summaries.get(`pr:${homepagePath}`)
 
 if (!baseline || !featureHomepage) {
   throw new Error('Expected three-run Lighthouse results for both main and PR homepage URLs.')
