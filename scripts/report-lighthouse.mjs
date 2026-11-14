@@ -3,6 +3,16 @@ import { join } from 'node:path'
 
 const reportDirectory = process.argv[2] ?? 'lighthouse-reports'
 
+const budgets = [
+  { key: 'performance', label: 'Performance', unit: 'score', min: 90 },
+  { key: 'accessibility', label: 'Accessibility', unit: 'score', min: 95 },
+  { key: 'bestPractices', label: 'Best Practices', unit: 'score', min: 95 },
+  { key: 'seo', label: 'SEO', unit: 'score', min: 95 },
+  { key: 'lcp', label: 'LCP', unit: 'seconds', max: 2500 },
+  { key: 'cls', label: 'CLS', unit: 'cls', max: 0.1 },
+  { key: 'tbt', label: 'TBT', unit: 'milliseconds', max: 200 },
+]
+
 function findJsonFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name)
@@ -20,9 +30,14 @@ function median(values) {
     : sorted[middle]
 }
 
-function metricValue(report, auditId) {
+function auditValue(report, auditId) {
   const value = report.audits?.[auditId]?.numericValue
   return Number.isFinite(value) ? value : null
+}
+
+function scoreValue(report, categoryId) {
+  const value = report.categories?.[categoryId]?.score
+  return Number.isFinite(value) ? value * 100 : null
 }
 
 function format(value, unit) {
@@ -33,13 +48,16 @@ function format(value, unit) {
   return `${Math.round(value)} ms`
 }
 
-const metrics = [
-  { key: 'performance', label: 'Performance', unit: 'score' },
-  { key: 'lcp', label: 'LCP', unit: 'seconds' },
-  { key: 'cls', label: 'CLS', unit: 'cls' },
-  { key: 'tbt', label: 'TBT', unit: 'milliseconds' },
-  { key: 'fcp', label: 'FCP', unit: 'seconds' },
-  { key: 'speedIndex', label: 'Speed Index', unit: 'seconds' },
+const metricDefinitions = [
+  { key: 'performance', label: 'Performance', unit: 'score', category: 'performance' },
+  { key: 'accessibility', label: 'Accessibility', unit: 'score', category: 'accessibility' },
+  { key: 'bestPractices', label: 'Best Practices', unit: 'score', category: 'best-practices' },
+  { key: 'seo', label: 'SEO', unit: 'score', category: 'seo' },
+  { key: 'lcp', label: 'LCP', unit: 'seconds', audit: 'largest-contentful-paint' },
+  { key: 'cls', label: 'CLS', unit: 'cls', audit: 'cumulative-layout-shift' },
+  { key: 'tbt', label: 'TBT', unit: 'milliseconds', audit: 'total-blocking-time' },
+  { key: 'fcp', label: 'FCP', unit: 'seconds', audit: 'first-contentful-paint' },
+  { key: 'speedIndex', label: 'Speed Index', unit: 'seconds', audit: 'speed-index' },
 ]
 
 const reports = findJsonFiles(reportDirectory).flatMap((path) => {
@@ -55,16 +73,10 @@ const reports = findJsonFiles(reportDirectory).flatMap((path) => {
     return [{
       target,
       pathname: url.pathname,
-      values: {
-        performance: Number.isFinite(report.categories.performance?.score)
-          ? report.categories.performance.score * 100
-          : null,
-        lcp: metricValue(report, 'largest-contentful-paint'),
-        cls: metricValue(report, 'cumulative-layout-shift'),
-        tbt: metricValue(report, 'total-blocking-time'),
-        fcp: metricValue(report, 'first-contentful-paint'),
-        speedIndex: metricValue(report, 'speed-index'),
-      },
+      values: Object.fromEntries(metricDefinitions.map(({ key, category, audit }) => [
+        key,
+        category ? scoreValue(report, category) : auditValue(report, audit),
+      ])),
     }]
   } catch {
     return []
@@ -89,12 +101,10 @@ for (const [key, entries] of groups) {
     target,
     pathname,
     runs: entries.length,
-    values: Object.fromEntries(
-      metrics.map(({ key: metricKey }) => [
-        metricKey,
-        median(entries.map((entry) => entry.values[metricKey])),
-      ]),
-    ),
+    values: Object.fromEntries(metricDefinitions.map(({ key: metricKey }) => [
+      metricKey,
+      median(entries.map((entry) => entry.values[metricKey])),
+    ])),
   })
 }
 
@@ -106,12 +116,30 @@ if (!baseline || !featureHomepage) {
   throw new Error('Expected three-run Lighthouse results for both main and PR homepage URLs.')
 }
 
-console.log('## Lighthouse performance summary')
+const featureSummaries = [...summaries.values()].filter((summary) => summary.target === 'pr')
+const failures = []
+for (const summary of featureSummaries) {
+  if (summary.runs !== 3) {
+    failures.push(`${summary.pathname}: expected 3 Lighthouse runs, received ${summary.runs}`)
+  }
+  for (const budget of budgets) {
+    const value = summary.values[budget.key]
+    if (value === null) {
+      failures.push(`${summary.pathname}: ${budget.label} metric is missing`)
+    } else if (budget.min !== undefined && value < budget.min) {
+      failures.push(`${summary.pathname}: ${budget.label} ${format(value, budget.unit)} is below ${format(budget.min, budget.unit)}`)
+    } else if (budget.max !== undefined && value > budget.max) {
+      failures.push(`${summary.pathname}: ${budget.label} ${format(value, budget.unit)} exceeds ${format(budget.max, budget.unit)}`)
+    }
+  }
+}
+
+console.log('## Lighthouse performance and quality summary')
 console.log('')
-console.log('Median of three Lighthouse runs per URL. Lower is better for LCP, CLS, TBT, FCP, and Speed Index; higher is better for Performance.')
+console.log('Median of three Lighthouse runs per URL. PR pages are checked against the budgets below; main is measured as the homepage baseline.')
 console.log('')
-console.log('| Target | URL | Runs | Performance | LCP | CLS | TBT | FCP | Speed Index |')
-console.log('| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |')
+console.log('| Target | URL | Runs | Performance | Accessibility | Best Practices | SEO | LCP | CLS | TBT | FCP | Speed Index |')
+console.log('| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |')
 
 const ordered = [...summaries.values()].sort((a, b) => {
   if (a.pathname === homepagePath && b.pathname !== homepagePath) return a.target === 'main' ? -1 : 1
@@ -120,8 +148,24 @@ const ordered = [...summaries.values()].sort((a, b) => {
 })
 
 for (const summary of ordered) {
-  const cells = metrics.map(({ key, unit }) => format(summary.values[key], unit))
+  const cells = metricDefinitions.map(({ key, unit }) => format(summary.values[key], unit))
   console.log(`| ${summary.target === 'main' ? 'main baseline' : 'PR'} | ${summary.pathname} | ${summary.runs} | ${cells.join(' | ')} |`)
+}
+
+console.log('')
+console.log('### PR Lighthouse budgets')
+console.log('')
+console.log('| Metric | Required median |')
+console.log('| --- | ---: |')
+for (const budget of budgets) {
+  const threshold = budget.min !== undefined ? `≥ ${format(budget.min, budget.unit)}` : `≤ ${format(budget.max, budget.unit)}`
+  console.log(`| ${budget.label} | ${threshold} |`)
+}
+console.log('')
+console.log(`Budget result: ${failures.length === 0 ? 'PASS' : 'FAIL'}`)
+if (failures.length > 0) {
+  console.error('\nLighthouse budget violations:\n- ' + failures.join('\n- '))
+  process.exitCode = 1
 }
 
 console.log('')
@@ -130,7 +174,7 @@ console.log('')
 console.log('| Metric | main baseline | PR | Difference |')
 console.log('| --- | ---: | ---: | ---: |')
 
-for (const { key, label, unit } of metrics) {
+for (const { key, label, unit } of metricDefinitions) {
   const before = baseline.values[key]
   const after = featureHomepage.values[key]
   const delta = before === null || after === null ? null : after - before
