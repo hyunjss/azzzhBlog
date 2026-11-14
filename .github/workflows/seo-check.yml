@@ -97,6 +97,8 @@ jobs:
           }
           EOF
           npx lhci autorun --config=/tmp/lighthouserc.json
+      - name: Summarize Lighthouse metrics
+        run: node scripts/report-lighthouse.mjs lighthouse-reports >> "$GITHUB_STEP_SUMMARY"
       - name: Upload Lighthouse reports
         if: always()
         uses: actions/upload-artifact@v4
