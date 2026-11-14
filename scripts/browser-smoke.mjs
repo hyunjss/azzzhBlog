@@ -18,7 +18,7 @@ try {
   }
   const homepageJsRequests = await page.evaluate(() =>
     performance.getEntriesByType("resource")
-      .filter(entry => /\\.m?js(?:[?#]|$)/i.test(entry.name))
+      .filter(entry => /\.m?js(?:[?#]|$)/i.test(entry.name))
       .map(entry => entry.name)
   );
   if (homepageJsRequests.length) throw new Error("Homepage downloaded JavaScript resources: " + homepageJsRequests.join(", "));
@@ -26,7 +26,7 @@ try {
   // Search and category filters are handled by the generated static shell.
   const search = page.getByRole("searchbox", { name: "포스트 검색" });
   const firstTitle = await page.locator(".post-item__title").first().textContent();
-  const searchTerm = firstTitle?.trim().split(/\\s+/)[0];
+  const searchTerm = firstTitle?.trim().split(/\s+/)[0];
   if (!searchTerm) throw new Error("Could not find a post title for search verification");
   await search.fill(searchTerm);
   if (await page.locator(".post-item:visible").count() === 0) throw new Error("Static homepage search did not find a matching title");
@@ -43,7 +43,7 @@ try {
     throw new Error("Static category heading did not update");
   }
   const categoryTitle = await page.locator(".post-item:visible .post-item__title").first().textContent();
-  const categoryTerm = categoryTitle?.trim().split(/\\s+/)[0];
+  const categoryTerm = categoryTitle?.trim().split(/\s+/)[0];
   if (!categoryTerm) throw new Error("Could not find a post in the selected category");
   await search.fill(categoryTerm);
   const combinedResults = page.locator(".post-item:visible");
@@ -77,7 +77,7 @@ try {
   // Static article links must work as direct entries and after refresh.
   const firstPost = page.locator(".post-item:visible").first();
   await firstPost.click();
-  await page.waitForURL(/\\/post\\/[^/]+\\//);
+  await page.waitForURL(/\/post\/[^/]+\//);
   if (await page.locator(".markdown-body").count() !== 1) throw new Error("Article navigation did not render static content");
   if (await page.locator("h1").count() !== 1) throw new Error("Article does not have exactly one H1");
   if (await page.locator('script[src], script[type="module"], link[rel="modulepreload"]').count() !== 0) {
