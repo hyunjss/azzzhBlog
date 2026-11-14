@@ -1,5 +1,5 @@
 import { gzipSync } from "node:zlib";
-import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 function files(dir, ext) {
@@ -37,6 +37,19 @@ function collectStaticImports(manifest, key, collected = new Set()) {
     collectStaticImports(manifest, importedKey, collected);
   }
   return collected;
+}
+
+function homepageReferencedJs(dist) {
+  const html = readFileSync(join(dist, "index.html"), "utf8");
+  const references = [...html.matchAll(/<(?:script|link)\b[^>]*(?:src|href)=["']([^"']+\.js(?:\?[^"']*)?)["'][^>]*>/gi)]
+    .map((match) => match[1]);
+  return [...new Set(references)]
+    .map((reference) => {
+      const pathname = new URL(reference, "https://azzzhblog.local").pathname;
+      const relativePath = pathname.replace(/^\/azzzhBlog\//, "").replace(/^\/+/, "");
+      return join(dist, relativePath);
+    })
+    .filter(existsSync);
 }
 
 function analyzeInitialGraph(dist) {
@@ -94,6 +107,7 @@ const base = summary("main", baseDir);
 const current = summary("feature", currentDir);
 const article = files(join(currentDir, "post"), "index.html")[0];
 const graph = analyzeInitialGraph(currentDir);
+const homepageJs = homepageReferencedJs(currentDir);
 
 const lines = [
   "## Build output comparison",
@@ -109,7 +123,8 @@ const lines = [
   "",
   "| Metric | Raw size | Gzip size |",
   "|---|---:|---:|",
-  "| Initial JS (static import closure) | " + total(graph.initialJs) + " B | " + gzipTotal(graph.initialJs) + " B |",
+  "| Vite app entry JS (static import closure) | " + total(graph.initialJs) + " B | " + gzipTotal(graph.initialJs) + " B |",
+  "| Homepage-referenced JS (script/modulepreload) | " + total(homepageJs) + " B | " + gzipTotal(homepageJs) + " B |",
   "| Initial CSS | " + total(graph.initialCss) + " B | " + gzipTotal(graph.initialCss) + " B |",
   "| Lazy JS (dynamic import closure) | " + total(graph.lazyJs) + " B | " + gzipTotal(graph.lazyJs) + " B |",
   "| Lazy CSS | " + total(graph.lazyCss) + " B | " + gzipTotal(graph.lazyCss) + " B |",
@@ -119,6 +134,8 @@ const lines = [
   "- Lazy modules: " + graph.lazyModules,
   "- Initial JS files: " + (graph.initialJs.map((path) => path.replace(currentDir + "/", "")).join(", ") || "none"),
   "- Lazy JS files: " + (graph.lazyJs.map((path) => path.replace(currentDir + "/", "")).join(", ") || "none"),
+  "",
+  "- Homepage-referenced JS is derived from actual script src and modulepreload href references in generated index.html; inline script bytes are included in Homepage HTML.",
   "",
   "_Sizes are build artifact measurements; gzip values are calculated locally from emitted files and do not represent browser transfer timings._",
 ];

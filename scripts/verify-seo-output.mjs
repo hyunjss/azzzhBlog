@@ -106,6 +106,16 @@ const home = readFileSync(join(dist, "index.html"), "utf8");
 if (!home.includes('id="seo-fallback"')) errors.push("Home static fallback missing");
 if (!home.includes('rel="alternate" type="application/rss+xml"')) errors.push("Home RSS discovery link missing");
 if (!home.includes('"@type":"Blog"')) errors.push("Blog JSON-LD missing on home page");
+if (/<script\b[^>]*\bsrc=/i.test(home) || /<script\b[^>]*type=["']module["']/i.test(home)) {
+  errors.push("Home page unexpectedly references an external JavaScript bundle");
+}
+if (/<link\s+rel=["']modulepreload["']/i.test(home)) {
+  errors.push("Home page unexpectedly includes a JavaScript modulepreload link");
+}
+if (!home.includes("data-post-search") || !home.includes("data-theme-toggle") ||
+    !home.includes("data-category") || !home.includes("data-post-category")) {
+  errors.push("Home static search, theme, or category controls missing");
+}
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);
