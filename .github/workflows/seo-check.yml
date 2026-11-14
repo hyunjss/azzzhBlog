@@ -31,6 +31,8 @@ jobs:
         run: |
           npm ci
           npm run build
+      - name: Lint feature branch
+        run: npm run lint
       - name: Verify SEO output
         run: node scripts/verify-seo-output.mjs
       - name: Compare build sizes
