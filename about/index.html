@@ -53,13 +53,38 @@
   const sidebar = document.querySelector(".blog-sidebar");
   const sidebarToggle = document.querySelector("[data-sidebar-toggle]");
   const sidebarBackdrop = document.querySelector("[data-sidebar-backdrop]");
-  const setSidebarOpen = open => {
-    sidebar?.classList.toggle("blog-sidebar--open", open);
+  const categoryButtons = [...document.querySelectorAll("[data-category]")];
+  const mobileQuery = window.matchMedia("(max-width: 900px)");
+  const isSidebarOpen = () => sidebar?.classList.contains("blog-sidebar--open") ?? false;
+  const syncSidebarAccessibility = () => {
+    const mobile = mobileQuery.matches;
+    const open = mobile && isSidebarOpen();
+    if (sidebar) { sidebar.inert = mobile && !open; sidebar.setAttribute("aria-hidden", String(mobile && !open)); }
+    if (sidebarToggle) sidebarToggle.setAttribute("aria-expanded", String(open));
     if (sidebarBackdrop) sidebarBackdrop.hidden = !open;
   };
-  sidebarToggle?.addEventListener("click", () => setSidebarOpen(!sidebar?.classList.contains("blog-sidebar--open")));
+  const setSidebarOpen = (open, restoreFocus = true) => {
+    if (!sidebar || !mobileQuery.matches) return;
+    sidebar.classList.toggle("blog-sidebar--open", open);
+    syncSidebarAccessibility();
+    if (open) categoryButtons[0]?.focus();
+    else if (restoreFocus) sidebarToggle?.focus();
+  };
+  sidebarToggle?.addEventListener("click", () => setSidebarOpen(!isSidebarOpen()));
   sidebarBackdrop?.addEventListener("click", () => setSidebarOpen(false));
-  const categoryButtons = [...document.querySelectorAll("[data-category]")];
+  sidebar?.addEventListener("keydown", event => {
+    if (!mobileQuery.matches || !isSidebarOpen()) return;
+    if (event.key === "Escape") { event.preventDefault(); setSidebarOpen(false); return; }
+    if (event.key !== "Tab") return;
+    const focusable = categoryButtons.filter(button => !button.disabled);
+    if (!focusable.length) { event.preventDefault(); sidebarToggle?.focus(); return; }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  });
+  mobileQuery.addEventListener("change", () => { sidebar?.classList.remove("blog-sidebar--open"); syncSidebarAccessibility(); });
+  syncSidebarAccessibility();
   const posts = [...document.querySelectorAll("[data-post-category]")];
   const heading = document.querySelector("[data-category-heading]");
   const searchInput = document.querySelector("[data-post-search]");
