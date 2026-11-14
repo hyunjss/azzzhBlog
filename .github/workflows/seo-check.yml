@@ -69,7 +69,9 @@ jobs:
             exit 1
           fi
           ARTICLE_PATH="${ARTICLE_FILE#dist}"
-          ARTICLE_URL="http://127.0.0.1:4173${ARTICLE_PATH}"
+          ARTICLE_URL="http://127.0.0.1:4173/azzzhBlog${ARTICLE_PATH}"
+          echo "Checking Lighthouse article URL: $ARTICLE_URL"
+          curl --fail --silent --show-error "$ARTICLE_URL" > /dev/null
           cat > /tmp/lighthouserc.json <<EOF
           {
             "ci": {
