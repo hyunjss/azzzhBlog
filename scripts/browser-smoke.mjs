@@ -36,6 +36,8 @@ try {
   }
   await search.fill("");
 
+  // Category controls live in the desktop sidebar; switch viewport before interacting with them.
+  await page.setViewportSize({ width: 1280, height: 900 });
   const category = page.locator("[data-category]").nth(1);
   const categoryName = (await category.locator(".sidebar-item__label").textContent())?.trim();
   await category.click();
@@ -56,6 +58,7 @@ try {
   }
   await search.fill("");
   await page.locator("[data-category]").first().click();
+  await page.setViewportSize({ width: 390, height: 844 });
 
   // Theme and mobile navigation must remain functional without React.
   const themeButton = page.locator("[data-theme-toggle]");
