@@ -481,6 +481,11 @@
   border: 1px solid var(--border-strong);
   padding: 16px;
 }
+.markdown-body pre:focus-visible {
+  outline: 2px solid var(--accent-dark);
+  outline-offset: 3px;
+}
+
 .markdown-body pre code {
   background: none;
   border: none;
