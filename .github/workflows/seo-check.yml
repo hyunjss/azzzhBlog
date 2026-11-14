@@ -32,7 +32,7 @@ jobs:
           npm ci
           npm run build
       - name: Add preview commit metadata
-        run: printf '{"commit":"%s"}\\n' "$GITHUB_SHA" > dist/deployment-info.json
+        run: printf '{"commit":"%s"}\n' "$GITHUB_SHA" > dist/deployment-info.json
       - name: Lint feature branch
         run: npm run lint
       - name: Verify SEO output
