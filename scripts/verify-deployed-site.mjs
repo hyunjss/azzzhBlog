@@ -80,7 +80,7 @@ assert(feed.body.includes('<rss version="2.0"'), "RSS 2.0 root element is missin
 assert(feed.body.includes(publicSite + "/feed.xml"), "RSS self URL is missing.");
 assert(sitemap.body.includes("<urlset"), "Sitemap urlset is missing.");
 assert(robots.body.includes("Sitemap: " + publicSite + "/sitemap.xml"), "robots.txt sitemap directive is missing.");
-assert(about.body.includes('<link rel="canonical" href="' + site + '/about/"'), "About canonical URL is missing.");
+assert(about.body.includes('<link rel="canonical" href="' + publicSite + '/about/"'), "About canonical URL is missing.");
 
 const sitemapUrls = [...sitemap.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
 const articleUrls = sitemapUrls.filter(url => /\/post\/[^/]+\/$/.test(url));
