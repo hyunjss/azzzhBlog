@@ -15,7 +15,7 @@
 
   --accent:         #f5a623;        /* Notes 노란색 */
   --accent-muted:   rgba(245,166,35,0.18);
-  --accent-dark:    #e09415;
+  --accent-dark:    #8a5700;
 
   --selected-list:  rgba(245,166,35,0.22);
   --selected-sidebar: rgba(0,0,0,0.08);
@@ -23,7 +23,7 @@
 
   --tag-bg:         rgba(0,122,255,0.09);
   --tag-text:       #005bb8;
-  --link:           #0071e3;
+  --link:           #005bb8;
 
   --radius-sm:      5px;
   --radius:         8px;
