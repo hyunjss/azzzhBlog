@@ -12,12 +12,13 @@ try {
 
   // The interactive homepage uses a small native hash route for About.
   await page.locator(".blog-layout").waitFor();
-  await page.locator(".titlebar__btn").first().click();
+  await page.locator("#seo-fallback").waitFor({ state: "detached" });
+  await page.locator(".titlebar__actions button").first().click();
   await page.waitForURL(/#\/about$/);
-  if (await page.locator(".about h1").count() !== 1) throw new Error("Hash-based About navigation failed");
+  await page.locator(".about h1").waitFor();
   await page.locator(".about__back").click();
   await page.waitForURL(base);
-  if (await page.locator(".blog-layout").count() !== 1) throw new Error("Hash-based return navigation failed");
+  await page.locator(".blog-layout").waitFor();
 
   // Discover a real generated article URL from the sitemap.
   const sitemapResponse = await page.request.get(base + "sitemap.xml");
