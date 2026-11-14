@@ -11,7 +11,7 @@
     "build": "tsc -b && vite build && npm run generate-og",
     "lint": "eslint src",
     "preview": "vite preview",
-    "generate-og": "node scripts/generate-og.mjs",
+    "generate-og": "node scripts/generate-og.mjs && node scripts/link-static-about-css.mjs",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
