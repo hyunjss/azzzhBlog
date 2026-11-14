@@ -105,6 +105,41 @@ jobs:
           npx lhci autorun --config=/tmp/lighthouserc.json
       - name: Summarize Lighthouse metrics
         run: node scripts/report-lighthouse.mjs lighthouse-reports >> "$GITHUB_STEP_SUMMARY"
+      - name: Generate dependency vulnerability report
+        run: |
+          npm audit --json > npm-audit.json || true
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const audit = JSON.parse(fs.readFileSync('npm-audit.json', 'utf8'));
+          const counts = audit.metadata?.vulnerabilities ?? {};
+          const levels = ['critical', 'high', 'moderate', 'low', 'info'];
+          const lines = [
+            '## Dependency vulnerability audit',
+            '',
+            '| Severity | Count |',
+            '|---|---:|',
+            ...levels.map(level => `| ${level} | ${counts[level] ?? 0} |`),
+            '',
+            '### Vulnerable packages',
+            '',
+            '| Package | Severity | Direct | Fix available |',
+            '|---|---|---|---|',
+            ...Object.entries(audit.vulnerabilities ?? {}).map(([name, item]) =>
+              `| ${name} | ${item.severity} | ${item.isDirect ? 'yes' : 'no'} | ${item.fixAvailable ? 'yes' : 'no'} |`
+            )
+          ];
+          const report = lines.join('\n');
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, report + '\n');
+          console.log(report);
+          NODE
+      - name: Upload dependency audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-report
+          path: npm-audit.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Upload Lighthouse reports
         if: always()
         uses: actions/upload-artifact@v4
