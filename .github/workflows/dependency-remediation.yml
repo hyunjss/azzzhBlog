@@ -25,6 +25,8 @@ jobs:
           cache: npm
       - name: Apply non-breaking security updates
         run: npm audit fix --package-lock-only || echo "Some advisories require a breaking change; continue with compatible updates and report the remainder."
+      - name: Resolve scoped minimatch override in lockfile
+        run: npm install --package-lock-only
       - name: Install exact updated lockfile
         run: npm ci
       - name: Build
