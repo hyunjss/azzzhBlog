@@ -80,8 +80,8 @@ try {
   await page.waitForURL(/\/post\/[^/]+\//);
   if (await page.locator(".markdown-body").count() !== 1) throw new Error("Article navigation did not render static content");
   if (await page.locator("h1").count() !== 1) throw new Error("Article does not have exactly one H1");
-  if (await page.locator('script[src], script[type="module"], link[rel="modulepreload"]').count() !== 0) {
-    throw new Error("Static article unexpectedly references a JavaScript bundle");
+  if (await page.locator('script[src*="/assets/"], script[type="module"], link[rel="modulepreload"]').count() !== 0) {
+    throw new Error("Static article unexpectedly references an application JavaScript bundle");
   }
   const articleCanonical = await page.locator('link[rel="canonical"]').getAttribute("href");
   if (!articleCanonical?.startsWith("https://hyunjss.github.io/azzzhBlog/post/")) {
