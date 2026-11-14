@@ -18,7 +18,11 @@ jobs:
       - run: npm ci
       - name: Build and generate static SEO pages
         run: npm run build
+      - name: Add deployment commit metadata
+        run: printf '{"commit":"%s"}\n' "$GITHUB_SHA" > dist/deployment-info.json
       - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+      - name: Verify published pages and SEO endpoints
+        run: node scripts/verify-deployed-site.mjs
