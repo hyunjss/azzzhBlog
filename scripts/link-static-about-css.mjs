@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const root = process.cwd();
@@ -33,6 +33,9 @@ if (!html.includes(links)) {
 }
 
 for (const file of cssFiles) {
+  if (!existsSync(join(dist, file))) {
+    throw new Error("Emitted About stylesheet does not exist: " + file);
+  }
   if (!html.includes(base + file)) {
     throw new Error("About stylesheet link missing from static HTML: " + file);
   }
