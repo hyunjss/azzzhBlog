@@ -1,14 +1,10 @@
-import { useState, useEffect } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAllPosts, getAllCategories, getPostBySlug } from '../utils/posts';
 import type { PostMeta, Post } from '../types';
-import ReactMarkdown from 'react-markdown';
-import rehypeHighlight from 'rehype-highlight';
-import rehypeSlug from 'rehype-slug';
-import remarkGfm from 'remark-gfm';
-import Giscus from '@giscus/react';
-import 'highlight.js/styles/github-dark.css';
 import './BlogLayout.css';
+
+const PostContent = lazy(() => import('./PostContent'));
 
 
 export default function BlogLayout() {
@@ -89,10 +85,10 @@ export default function BlogLayout() {
 
       {/* ── macOS 타이틀바 ── */}
       <div className="titlebar">
-        <div className="traffic-lights">
-          <button className="traffic-light traffic-light--close" aria-label="닫기" />
-          <button className="traffic-light traffic-light--min"   aria-label="최소화" />
-          <button className="traffic-light traffic-light--max"   aria-label="최대화" />
+        <div className="traffic-lights" aria-hidden="true">
+          <span className="traffic-light traffic-light--close" />
+          <span className="traffic-light traffic-light--min" />
+          <span className="traffic-light traffic-light--max" />
         </div>
         <button
           className="titlebar__hamburger"
@@ -147,6 +143,7 @@ export default function BlogLayout() {
           </nav>
         </aside>
 
+        <main className="blog-main">
         {/* 가운데: 포스트 목록 */}
         <section className="blog-list">
           <div className="blog-list__header">
@@ -176,7 +173,7 @@ export default function BlogLayout() {
         </section>
 
         {/* 오른쪽: 포스트 내용 */}
-        <main className="blog-content">
+        <section className="blog-content">
           <div className="blog-content__inner">
             {postLoading ? null : activePost ? (
               <>
@@ -184,43 +181,9 @@ export default function BlogLayout() {
                   className="blog-content__back-mobile"
                   onClick={() => { setActivePost(null); navigate('/'); }}
                 >← 목록으로</button>
-                <header className="blog-content__header">
-                  <div className="blog-content__category">{activePost.category}</div>
-                  <h1 className="blog-content__title">{activePost.title}</h1>
-                  <div className="blog-content__meta">
-                    <span>{activePost.date}</span>
-                    <span>·</span>
-                    <span>{activePost.readingTime}분 읽기</span>
-                  </div>
-                  <div className="blog-content__tags">
-                    {activePost.tags.map(tag => (
-                      <span key={tag} className="post-tag post-tag--lg">#{tag}</span>
-                    ))}
-                  </div>
-                </header>
-                <article className="markdown-body">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeHighlight, rehypeSlug]}
-                  >
-                    {activePost.content}
-                  </ReactMarkdown>
-                </article>
-                <div className="giscus-wrap">
-                  <Giscus
-                    repo="hyunjss/azzzhBlog"
-                    repoId="R_kgDOSOcAvg"
-                    category="Comment"
-                    categoryId="DIC_kwDOSOcAvs4DALvz"
-                    mapping="pathname"
-                    strict="0"
-                    reactionsEnabled="1"
-                    emitMetadata="0"
-                    inputPosition="bottom"
-                    theme={theme === 'dark' ? 'dark' : 'light'}
-                    lang="ko"
-                  />
-                </div>
+                <Suspense fallback={<p className="post-loading" role="status">게시글을 불러오는 중...</p>}>
+                  <PostContent post={activePost} theme={theme} />
+                </Suspense>
               </>
             ) : (
               <div className="blog-content__empty">
@@ -228,6 +191,7 @@ export default function BlogLayout() {
               </div>
             )}
           </div>
+        </section>
         </main>
       </div>
     </div>
