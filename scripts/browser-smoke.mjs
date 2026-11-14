@@ -79,6 +79,15 @@ try {
   }
   const visibleCategories = await page.locator(".post-item:visible").evaluateAll(items => [...new Set(items.map(el => el.getAttribute("data-post-category")))]);
   if (visibleCategories.some(value => value !== categoryName)) throw new Error("Category filter displayed unrelated posts");
+  const categoryFirstTitle = await page.locator(".post-item:visible .post-item__title").first().textContent();
+  const categorySearchTerm = categoryFirstTitle?.trim().split(/\s+/)[0];
+  if (!categorySearchTerm) throw new Error("Could not find a post title in the selected category");
+  await search.fill(categorySearchTerm);
+  const combinedResults = page.locator(".post-item:visible");
+  if (await combinedResults.count() === 0) throw new Error("Search and category filters returned no matching post");
+  const combinedCategories = await combinedResults.evaluateAll(items => [...new Set(items.map(el => el.getAttribute("data-post-category")))]);
+  if (combinedCategories.some(value => value !== categoryName)) throw new Error("Combined search/category filter displayed unrelated categories");
+  await search.fill("");
 
   await menu.click();
   if (!await page.locator(".blog-sidebar").evaluate(el => el.classList.contains("blog-sidebar--open"))) {
