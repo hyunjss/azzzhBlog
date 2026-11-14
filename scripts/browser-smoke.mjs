@@ -41,6 +41,24 @@ try {
   await page.reload({ waitUntil: "networkidle" });
   if (await page.locator(".markdown-body").count() !== 1) throw new Error("Static article failed after refresh");
 
+  // Search matches titles, descriptions, categories, and tags; category and search filters combine.
+  const search = page.getByRole("searchbox", { name: "포스트 검색" });
+  const firstTitle = await page.locator(".post-item:visible .post-item__title").first().textContent();
+  const searchTerm = firstTitle?.trim().split(/\\s+/)[0];
+  if (!searchTerm) throw new Error("Could not find a post title for search verification");
+  await search.fill(searchTerm);
+  const matchingPosts = page.locator(".post-item:visible");
+  if (await matchingPosts.count() === 0) throw new Error("Search did not find the matching post title");
+  const matchingTitles = await matchingPosts.locator(".post-item__title").allTextContents();
+  if (!matchingTitles.some(title => title.toLocaleLowerCase("ko-KR").includes(searchTerm.toLocaleLowerCase("ko-KR")))) {
+    throw new Error("Search results do not include the matching title");
+  }
+  await search.fill("__no_matching_post_query__");
+  if (await page.locator(".blog-list__empty").textContent() !== "검색 결과가 없습니다.") {
+    throw new Error("Search empty state was not displayed");
+  }
+  await search.fill("");
+
   // Test mobile navigation and category filtering on the static article layout.
   const menu = page.locator("[data-sidebar-toggle]");
   await menu.click();
