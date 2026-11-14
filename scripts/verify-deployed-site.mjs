@@ -4,7 +4,7 @@ const retryDelayMs = 5000;
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-async function fetchPublished(path) {
+async function fetchPublished(path, validateBody = () => true) {
   const url = site + path;
   let lastError;
 
@@ -17,10 +17,12 @@ async function fetchPublished(path) {
       });
 
       if (response.ok) {
-        return { response, body: await response.text() };
+        const body = await response.text();
+        if (validateBody(body)) return { response, body };
+        lastError = new Error(url + " returned an unexpected response body.");
+      } else {
+        lastError = new Error(url + " returned HTTP " + response.status);
       }
-
-      lastError = new Error(url + " returned HTTP " + response.status);
     } catch (error) {
       lastError = error;
     }
@@ -36,6 +38,18 @@ async function fetchPublished(path) {
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+const expectedCommit = process.env.GITHUB_SHA;
+if (expectedCommit) {
+  const deployment = await fetchPublished("/deployment-info.json", body => {
+    try {
+      return JSON.parse(body).commit === expectedCommit;
+    } catch {
+      return false;
+    }
+  });
+  console.log("Verified deployed commit " + JSON.parse(deployment.body).commit);
 }
 
 const checks = [
