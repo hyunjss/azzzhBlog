@@ -14,7 +14,6 @@ export default function App() {
     <HashRouter>
       <Routes>
         <Route path="/" element={<BlogLayout />} />
-        <Route path="/post/:slug" element={<BlogLayout />} />
         <Route
           path="/about"
           element={
