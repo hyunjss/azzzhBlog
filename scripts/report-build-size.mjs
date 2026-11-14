@@ -24,6 +24,6 @@ const lines = [
   "| Homepage HTML | " + base.home + " B | " + current.home + " B | " + (current.home - base.home) + " B |",
   "| Representative article HTML | — | " + (article ? statSync(article).size : 0) + " B | standalone document; no React JS entry |",
 ];
-const output = lines.join("\\n");
+const output = lines.join("\n");
 console.log(output);
 if (process.env.GITHUB_STEP_SUMMARY) writeFileSync(process.env.GITHUB_STEP_SUMMARY, output + "\\n", { flag: "a" });
