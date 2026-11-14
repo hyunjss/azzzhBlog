@@ -41,7 +41,7 @@ jobs:
         run: node scripts/report-build-size.mjs baseline/dist dist
       - name: Install browser test and Lighthouse tools
         run: |
-          npm install --no-save --package-lock=false playwright @lhci/cli
+          npm install --no-save --package-lock=false playwright @lhci/cli @axe-core/playwright
           npx playwright install --with-deps chromium
       - name: Start feature static preview
         run: |
@@ -55,6 +55,8 @@ jobs:
           exit 1
       - name: Run browser smoke tests
         run: node scripts/browser-smoke.mjs
+      - name: Run WCAG accessibility smoke tests
+        run: node scripts/accessibility-smoke.mjs
       - name: Verify published-site contract against local preview
         env:
           SITE_URL: http://127.0.0.1:4173/azzzhBlog
