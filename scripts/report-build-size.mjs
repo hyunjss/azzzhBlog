@@ -26,4 +26,4 @@ const lines = [
 ];
 const output = lines.join("\n");
 console.log(output);
-if (process.env.GITHUB_STEP_SUMMARY) writeFileSync(process.env.GITHUB_STEP_SUMMARY, output + "\\n", { flag: "a" });
+if (process.env.GITHUB_STEP_SUMMARY) writeFileSync(process.env.GITHUB_STEP_SUMMARY, output + "\n", { flag: "a" });
