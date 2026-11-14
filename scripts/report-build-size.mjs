@@ -41,12 +41,12 @@ function collectStaticImports(manifest, key, collected = new Set()) {
 
 function homepageReferencedJs(dist) {
   const html = readFileSync(join(dist, "index.html"), "utf8");
-  const references = [...html.matchAll(/<(?:script|link)\\b[^>]*(?:src|href)=["']([^"']+\\.js(?:\\?[^"']*)?)["'][^>]*>/gi)]
+  const references = [...html.matchAll(/<(?:script|link)\b[^>]*(?:src|href)=["']([^"']+\.js(?:\?[^"']*)?)["'][^>]*>/gi)]
     .map((match) => match[1]);
   return [...new Set(references)]
     .map((reference) => {
       const pathname = new URL(reference, "https://azzzhblog.local").pathname;
-      const relativePath = pathname.replace(/^\\/azzzhBlog\\//, "").replace(/^\\/+/, "");
+      const relativePath = pathname.replace(/^\/azzzhBlog\//, "").replace(/^\/+/, "");
       return join(dist, relativePath);
     })
     .filter(existsSync);
