@@ -44,7 +44,7 @@ try {
   // Search matches titles, descriptions, categories, and tags; category and search filters combine.
   const search = page.getByRole("searchbox", { name: "포스트 검색" });
   const firstTitle = await page.locator(".post-item:visible .post-item__title").first().textContent();
-  const searchTerm = firstTitle?.trim().split(/\\s+/)[0];
+  const searchTerm = firstTitle?.trim().split(/\s+/)[0];
   if (!searchTerm) throw new Error("Could not find a post title for search verification");
   await search.fill(searchTerm);
   const matchingPosts = page.locator(".post-item:visible");
