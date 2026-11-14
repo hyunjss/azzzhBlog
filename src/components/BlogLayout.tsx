@@ -109,7 +109,6 @@ export default function BlogLayout() {
               <h2>{activeCategory}</h2>
               <div className="blog-list__count" aria-live="polite">{filteredPosts.length}개의 노트</div>
               <label className="blog-search">
-                <span className="sr-only">포스트 검색</span>
                 <input
                   type="search"
                   value={searchQuery}
