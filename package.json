@@ -9,7 +9,7 @@
     "dev": "vite",
     "prebuild": "npm run generate-meta",
     "build": "tsc -b && vite build && npm run generate-og",
-    "lint": "eslint .",
+    "lint": "eslint src",
     "preview": "vite preview",
     "generate-og": "node scripts/generate-og.mjs",
     "predeploy": "npm run build",
