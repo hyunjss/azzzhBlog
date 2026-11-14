@@ -96,7 +96,9 @@ if (aboutHtml) {
   if (canonical !== site + "/about/") errors.push("About canonical URL mismatch");
   if (!aboutHtml.includes('"@type":"AboutPage"')) errors.push("AboutPage JSON-LD missing");
   if (!aboutHtml.includes("<h1>안녕하세요</h1>")) errors.push("About page heading missing");
-  if (!aboutHtml.includes("프론트엔드 개발자")) errors.push("About page introduction missing");
+  if (!aboutHtml.includes("서비스의 흐름과 운영까지 고려한 구현")) errors.push("About page introduction missing");
+  if (!aboutHtml.includes("GitHub Pages") || !aboutHtml.includes("Markdown")) errors.push("About page blog technology list missing");
+  if (!aboutHtml.includes("AI 도구를 활용한 개발 방식과 실험")) errors.push("About page topic list missing");
   if (!aboutHtml.includes("https://github.com/hyunjss")) errors.push("About page GitHub link missing");
   if (/<script type="module"/i.test(aboutHtml)) errors.push("About page unexpectedly loads React module script");
   if (/<link\s+rel="modulepreload"/i.test(aboutHtml)) errors.push("About page unexpectedly includes JavaScript modulepreload link");

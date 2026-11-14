@@ -16,7 +16,7 @@ const postsDir = join(root, "src", "posts");
 const site = "https://hyunjss.github.io/azzzhBlog";
 const base = "/azzzhBlog/";
 const siteName = "azzzhBlog";
-const siteDescription = "프론트엔드 개발 경험과 AI Skill, AI 활용 프로젝트를 기록하는 기술 블로그";
+const siteDescription = "프론트엔드 개발, 웹 기술, AI 도구 활용과 개발 과정의 판단을 기록하는 기술 블로그";
 const escape = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" })[c]);
 function markdownFiles(dir, parent = dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap(e => {
@@ -116,13 +116,15 @@ const home = updateHead(staticShell, {
 writeFileSync(join(dist, "index.html"), home);
 
 const aboutUrl = site + "/about/";
+const aboutDescription = "프론트엔드 개발 과정의 기술적 판단, 웹·CS 기초, AI 도구 활용과 개발 회고를 기록합니다.";
+const aboutMarkup = '<main class="about-wrap"><div class="about"><a class="about__back" href="' + base + '">← 목록으로</a><h1>안녕하세요</h1><p class="about__intro">프론트엔드 개발을 중심으로 서비스의 흐름과 운영까지 고려한 구현을 고민합니다.<br />이곳에는 개발 과정에서 마주친 문제와 기술적 판단, AI 시대의 개발 경험을 기록합니다.</p><section class="about__section"><h2>이 블로그의 기술</h2><div class="about__skills">' + ["React", "TypeScript", "Vite", "Markdown", "GitHub Pages"].map(skill => '<span class="skill-badge">' + escape(skill) + '</span>').join("") + '</div></section><section class="about__section"><h2>주로 다루는 주제</h2><ul><li>프론트엔드와 JavaScript 개발</li><li>웹 기술과 컴퓨터 과학 기초</li><li>AI 도구를 활용한 개발 방식과 실험</li><li>개발 과정의 판단과 회고</li></ul></section><section class="about__section"><h2>Links</h2><a href="https://github.com/hyunjss" target="_blank" rel="noreferrer" class="about__link">GitHub →</a></section></div></main>';
 const aboutHtml = updateHead(staticShell, {
   title: "About | " + siteName,
-  description: "azzzhBlog와 운영자 소개",
+  description: aboutDescription,
   url: aboutUrl,
   type: "website",
-  structured: jsonLd({ "@context": "https://schema.org", "@type": "AboutPage", name: "About | " + siteName, url: aboutUrl }),
-}).replace('<div id="root"></div>', '<div id="root"><main class="about-wrap"><div class="about"><a class="about__back" href="' + base + '">← 목록으로</a><h1>안녕하세요</h1><p class="about__intro">프론트엔드 개발자 <strong>hhyun</strong>입니다.<br />공부한 내용을 기록하고 공유하는 블로그입니다.</p><section class="about__section"><h2>기술 스택</h2><div class="about__skills">' + ["React", "TypeScript", "JavaScript", "HTML/CSS", "Vite"].map(skill => '<span class="skill-badge">' + escape(skill) + '</span>').join("") + '</div></section><section class="about__section"><h2>주로 다루는 주제</h2><ul><li>프론트엔드 개발 (React, TypeScript)</li><li>CS 이론 (운영체제, 네트워크, 자료구조)</li><li>알고리즘 & 문제풀이</li></ul></section><section class="about__section"><h2>Links</h2><a href="https://github.com/hyunjss" target="_blank" rel="noreferrer" class="about__link">GitHub →</a></section></div></main></div>');
+  structured: jsonLd({ "@context": "https://schema.org", "@type": "AboutPage", name: "About | " + siteName, description: aboutDescription, url: aboutUrl }),
+}).replace('<div id="root"></div>', '<div id="root">' + aboutMarkup + '</div>');
 mkdirSync(join(dist, "about"), { recursive: true });
 writeFileSync(join(dist, "about", "index.html"), aboutHtml);
 
