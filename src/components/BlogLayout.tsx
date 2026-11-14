@@ -56,7 +56,7 @@ export default function BlogLayout() {
     const searchableText = [post.title, post.description, post.category, ...post.tags]
       .join(' ')
       .toLocaleLowerCase('ko-KR');
-    return normalizedQuery.split(/\\s+/).every(term => searchableText.includes(term));
+    return normalizedQuery.split(/\s+/).every(term => searchableText.includes(term));
   });
 
   function handleSelectCategory(cat: string) {
