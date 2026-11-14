@@ -1,0 +1,26 @@
+{
+  "index.html": {
+    "file": "assets/index-CjiSSMpW.js",
+    "name": "index",
+    "src": "index.html",
+    "isEntry": true,
+    "dynamicImports": [
+      "src/pages/About.tsx"
+    ],
+    "css": [
+      "assets/index-CDIx57gP.css"
+    ]
+  },
+  "src/pages/About.tsx": {
+    "file": "assets/About-BPecBwn2.js",
+    "name": "About",
+    "src": "src/pages/About.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html"
+    ],
+    "css": [
+      "assets/About-Bfa49HW6.css"
+    ]
+  }
+}

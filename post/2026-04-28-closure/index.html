@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/azzzhBlog/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>클로저(Closure)란 무엇인가 | azzzhBlog</title>
+    <meta name="description" content="클로저의 개념과 실제 활용 방법을 예제와 함께 정리합니다." />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="azzzhBlog" />
+    <meta property="og:title" content="클로저(Closure)란 무엇인가 | azzzhBlog" />
+    <meta property="og:description" content="클로저의 개념과 실제 활용 방법을 예제와 함께 정리합니다." />
+    <meta property="og:url" content="https://hyunjss.github.io/azzzhBlog/post/2026-04-28-closure/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="클로저(Closure)란 무엇인가 | azzzhBlog" />
+    <meta name="twitter:description" content="클로저의 개념과 실제 활용 방법을 예제와 함께 정리합니다." />
+    <style>#seo-fallback{position:fixed;inset:0;z-index:10}</style>
+    <link rel="stylesheet" crossorigin href="/azzzhBlog/assets/index-CDIx57gP.css">
+  <link rel="canonical" href="https://hyunjss.github.io/azzzhBlog/post/2026-04-28-closure/" /><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"클로저(Closure)란 무엇인가","description":"클로저의 개념과 실제 활용 방법을 예제와 함께 정리합니다.","url":"https://hyunjss.github.io/azzzhBlog/post/2026-04-28-closure/","mainEntityOfPage":{"@type":"WebPage","@id":"https://hyunjss.github.io/azzzhBlog/post/2026-04-28-closure/"},"author":{"@type":"Person","name":"hyunjss"},"publisher":{"@type":"Organization","name":"azzzhBlog"},"datePublished":"2026-04-28","dateModified":"2026-04-28","articleSection":"JavaScript","keywords":"closure, scope, javascript"}</script></head>
+  <body>
+    <div id="root"><div class="blog-layout blog-layout--post-active"><div class="titlebar"><div class="traffic-lights"><span class="traffic-light traffic-light--close"></span><span class="traffic-light traffic-light--min"></span><span class="traffic-light traffic-light--max"></span></div><button type="button" class="titlebar__hamburger" aria-label="메뉴" data-sidebar-toggle>☰</button><a class="titlebar__title" href="/azzzhBlog/">클로저(Closure)란 무엇인가</a><div class="titlebar__actions"><a class="titlebar__btn" href="/azzzhBlog/">Home</a><a class="titlebar__btn" href="/azzzhBlog/about/">About</a><button type="button" class="titlebar__btn" data-theme-toggle>Dark</button></div></div><div class="blog-body"><div class="sidebar-backdrop" data-sidebar-backdrop hidden></div><aside class="blog-sidebar"><div class="blog-sidebar__section-label">카테고리</div><nav class="blog-sidebar__nav"><button type="button" class="sidebar-item active" data-category="전체"><span class="sidebar-item__label">전체</span><span class="sidebar-item__count">6</span></button><button type="button" class="sidebar-item" data-category="Personal/Reflections"><span class="sidebar-item__label">Personal/Reflections</span><span class="sidebar-item__count">1</span></button><button type="button" class="sidebar-item" data-category="etc."><span class="sidebar-item__label">etc.</span><span class="sidebar-item__count">1</span></button><button type="button" class="sidebar-item" data-category="AWS"><span class="sidebar-item__label">AWS</span><span class="sidebar-item__count">1</span></button><button type="button" class="sidebar-item" data-category="CS"><span class="sidebar-item__label">CS</span><span class="sidebar-item__count">1</span></button><button type="button" class="sidebar-item" data-category="JavaScript"><span class="sidebar-item__label">JavaScript</span><span class="sidebar-item__count">1</span></button><button type="button" class="sidebar-item" data-category="AI/Engineering"><span class="sidebar-item__label">AI/Engineering</span><span class="sidebar-item__count">1</span></button></nav></aside><main class="blog-main"><section class="blog-list"><div class="blog-list__header"><h2 data-category-heading>전체</h2><div class="blog-list__count">6개의 노트</div></div><div class="blog-list__items"><a data-post-category="Personal/Reflections" class="post-item" href="/azzzhBlog/post/ai-era-developer/"><div class="post-item__title">AI 시대, 개발자로 살아간다는 것</div><div class="post-item__date">2026-11-12 · 5분</div><div class="post-item__desc">AI가 빠르게 발전하는 시대에 개발자로 살아가며 느끼는 두려움과 허무함, 그리고 쉽게 정리되지 않는 생각들.</div><div class="post-item__tags"><span class="post-tag">#AI</span><span class="post-tag">#개발자</span><span class="post-tag">#커리어</span></div></a><a data-post-category="etc." class="post-item" href="/azzzhBlog/post/2026-06-30-nvmrc/"><div class="post-item__title">.nvmrc가 뭔지 정리</div><div class="post-item__date">2026-06-30 · 1분</div><div class="post-item__desc">프로젝트마다 Node 버전을 맞춰주는 .nvmrc 파일에 대해 정리합니다.</div><div class="post-item__tags"><span class="post-tag">#node</span><span class="post-tag">#nvmrc</span><span class="post-tag">#환경설정</span></div></a><a data-post-category="AWS" class="post-item" href="/azzzhBlog/post/2026-06-29-amplify-slack-notification/"><div class="post-item__title">AWS Amplify 빌드 알림 → Slack 연동하기</div><div class="post-item__date">2026-06-29 · 5분</div><div class="post-item__desc">AWS Amplify 빌드 이벤트를 EventBridge와 Lambda를 활용해 Slack으로 자동 전송하는 방법을 정리합니다.</div><div class="post-item__tags"><span class="post-tag">#aws</span><span class="post-tag">#amplify</span><span class="post-tag">#lambda</span></div></a><a data-post-category="CS" class="post-item" href="/azzzhBlog/post/2026-04-29-http-https-basics/"><div class="post-item__title">HTTPS &amp; HTTP 기초</div><div class="post-item__date">2026-04-29 · 3분</div><div class="post-item__desc">브라우저가 서버랑 어떻게 대화하는지 — HTTP 구조, HTTPS 암호화, TLS 핸드셰이크, 버전별 차이 정리</div><div class="post-item__tags"><span class="post-tag">#HTTP</span><span class="post-tag">#HTTPS</span><span class="post-tag">#TLS</span></div></a><a data-post-category="JavaScript" class="post-item active" href="/azzzhBlog/post/2026-04-28-closure/"><div class="post-item__title">클로저(Closure)란 무엇인가</div><div class="post-item__date">2026-04-28 · 2분</div><div class="post-item__desc">클로저의 개념과 실제 활용 방법을 예제와 함께 정리합니다.</div><div class="post-item__tags"><span class="post-tag">#closure</span><span class="post-tag">#scope</span><span class="post-tag">#javascript</span></div></a><a data-post-category="AI/Engineering" class="post-item" href="/azzzhBlog/post/2026-02-11-harness-engineering/"><div class="post-item__title">Harness Engineering: AI 에이전트 시대의 엔지니어링</div><div class="post-item__date">2026-02-11 · 4분</div><div class="post-item__desc">단 3명의 엔지니어가 5개월 동안 코드 한 줄 직접 쓰지 않고 100만 줄을 완성했다고? OpenAI의 Harness Engineering 읽고 정리해봤다.</div><div class="post-item__tags"><span class="post-tag">#AI</span><span class="post-tag">#harness-engineering</span><span class="post-tag">#codex</span></div></a></div></section><section class="blog-content"><div class="blog-content__inner"><a class="blog-content__back-mobile" href="/azzzhBlog/">← 목록으로</a><header class="blog-content__header"><div class="blog-content__category">JavaScript</div><h1 class="blog-content__title">클로저(Closure)란 무엇인가</h1><div class="blog-content__meta"><time datetime="2026-04-28">2026-04-28</time><span>·</span><span>2분 읽기</span></div><div class="blog-content__tags"><span class="post-tag post-tag--lg">#closure</span><span class="post-tag post-tag--lg">#scope</span><span class="post-tag post-tag--lg">#javascript</span></div></header><article class="markdown-body"><h2 id="클로저가-뭔지">클로저가 뭔지</h2>
+<p>클로저(Closure)는 <strong>함수와 그 함수가 선언된 렉시컬 환경의 조합</strong>이라고 한다. 함수가 자기가 만들어질 때의 스코프를 기억하고, 그 스코프 밖에서 호출돼도 안에 있던 변수에 접근할 수 있는 것.</p>
+<h2 id="기본-예제">기본 예제</h2>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">outer</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-keyword">const</span> name = <span class="hljs-string">&#x27;hhyun&#x27;</span>;
+
+  <span class="hljs-keyword">function</span> <span class="hljs-title function_">inner</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(name); <span class="hljs-comment">// &#x27;hhyun&#x27; 출력</span>
+  }
+
+  <span class="hljs-keyword">return</span> inner;
+}
+
+<span class="hljs-keyword">const</span> greet = <span class="hljs-title function_">outer</span>();
+<span class="hljs-title function_">greet</span>(); <span class="hljs-comment">// &#x27;hhyun&#x27; — outer 실행이 끝났지만 name에 접근 가능</span>
+</code></pre>
+<p><code>outer()</code>가 실행을 마쳤는데도 <code>greet</code>이 <code>name</code>에 접근된다는 게 신기했다. 스코프가 살아있는 게 아니라 함수가 그 환경을 들고 있는 거더라.</p>
+<h2 id="활용-사례">활용 사례</h2>
+<h3 id="1-데이터-은닉-캡슐화">1. 데이터 은닉 (캡슐화)</h3>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">createCounter</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-keyword">let</span> count = <span class="hljs-number">0</span>; <span class="hljs-comment">// 외부에서 직접 접근 불가</span>
+
+  <span class="hljs-keyword">return</span> {
+    <span class="hljs-attr">increment</span>: <span class="hljs-function">() =&gt;</span> ++count,
+    <span class="hljs-attr">decrement</span>: <span class="hljs-function">() =&gt;</span> --count,
+    <span class="hljs-attr">getCount</span>: <span class="hljs-function">() =&gt;</span> count,
+  };
+}
+
+<span class="hljs-keyword">const</span> counter = <span class="hljs-title function_">createCounter</span>();
+counter.<span class="hljs-title function_">increment</span>(); <span class="hljs-comment">// 1</span>
+counter.<span class="hljs-title function_">increment</span>(); <span class="hljs-comment">// 2</span>
+counter.<span class="hljs-title function_">getCount</span>();  <span class="hljs-comment">// 2</span>
+</code></pre>
+<p><code>count</code>를 직접 못 건드리고 메서드로만 조작 가능하게 하는 패턴. <code>private</code> 변수처럼 쓸 수 있다는 걸 여기서 처음 제대로 이해했다.</p>
+<h3 id="2-부분-적용-함수-partial-application">2. 부분 적용 함수 (Partial Application)</h3>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">multiply</span>(<span class="hljs-params">a: number</span>) {
+  <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">b: number</span>) =&gt;</span> a * b;
+}
+
+<span class="hljs-keyword">const</span> double = <span class="hljs-title function_">multiply</span>(<span class="hljs-number">2</span>);
+<span class="hljs-keyword">const</span> triple = <span class="hljs-title function_">multiply</span>(<span class="hljs-number">3</span>);
+
+<span class="hljs-title function_">double</span>(<span class="hljs-number">5</span>); <span class="hljs-comment">// 10</span>
+<span class="hljs-title function_">triple</span>(<span class="hljs-number">5</span>); <span class="hljs-comment">// 15</span>
+</code></pre>
+<h3 id="3-react에서의-클로저">3. React에서의 클로저</h3>
+<pre><code class="hljs language-tsx"><span class="hljs-keyword">function</span> <span class="hljs-title function_">Counter</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-keyword">const</span> [count, setCount] = <span class="hljs-title function_">useState</span>(<span class="hljs-number">0</span>);
+
+  <span class="hljs-keyword">const</span> <span class="hljs-title function_">handleClick</span> = (<span class="hljs-params"></span>) =&gt; {
+    <span class="hljs-comment">// handleClick은 count를 클로저로 캡처</span>
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(count);
+    <span class="hljs-title function_">setCount</span>(count + <span class="hljs-number">1</span>);
+  };
+
+  <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{handleClick}</span>&gt;</span>{count}<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></span>;
+}
+</code></pre>
+<p>React 쓰다가 stale closure 버그 마주쳤을 때 뭔지 몰랐는데, 클로저 개념을 알고 나니 왜 그게 생기는지 이해됐다.</p>
+<h2 id="클로저와-메모리">클로저와 메모리</h2>
+<p>클로저가 참조하는 변수는 GC가 못 건드린다. 그래서 더 이상 안 쓰는 클로저는 <code>null</code>로 참조를 끊어줘야 메모리가 해제된다는 것도 기억해두자.</p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">let</span> closure = (<span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-keyword">const</span> bigData = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Array</span>(<span class="hljs-number">1000000</span>).<span class="hljs-title function_">fill</span>(<span class="hljs-string">&#x27;data&#x27;</span>);
+  <span class="hljs-keyword">return</span> <span class="hljs-function">() =&gt;</span> bigData.<span class="hljs-property">length</span>;
+})();
+
+<span class="hljs-comment">// 더 이상 필요 없다면</span>
+closure = <span class="hljs-literal">null</span>; <span class="hljs-comment">// 메모리 해제</span>
+</code></pre>
+<h2 id="정리">정리</h2>
+<table><thead><tr><th>개념</th><th>설명</th></tr></thead><tbody><tr><td>렉시컬 스코프</td><td>함수가 <strong>정의된</strong> 위치를 기준으로 스코프 결정</td></tr><tr><td>클로저</td><td>함수 + 렉시컬 환경의 조합</td></tr><tr><td>활용</td><td>데이터 은닉, 커링, 메모이제이션</td></tr></tbody></table>
+<blockquote>
+<p>클로저를 제대로 이해하고 나니까 React Hook이 왜 그렇게 동작하는지 훨씬 명확하게 보였다.</p>
+</blockquote></article><div class="giscus-wrap"><script src="https://giscus.app/client.js" data-repo="hyunjss/azzzhBlog" data-repo-id="R_kgDOSOcAvg" data-category="Comment" data-category-id="DIC_kwDOSOcAvs4DALvz" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="ko" crossorigin="anonymous" async></script></div></div></section></main></div></div></div>
+  <script>
+(() => {
+  const root = document.documentElement;
+  const saved = localStorage.getItem("theme");
+  const initialTheme = saved === "dark" ? "dark" : "light";
+  root.setAttribute("data-theme", initialTheme);
+  const themeButton = document.querySelector("[data-theme-toggle]");
+  const setTheme = theme => {
+    root.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+    if (themeButton) themeButton.textContent = theme === "dark" ? "Light" : "Dark";
+    const giscus = document.querySelector("iframe.giscus-frame");
+    if (giscus) giscus.contentWindow?.postMessage({ giscus: { setConfig: { theme: theme === "dark" ? "dark" : "light" } } }, "https://giscus.app");
+  };
+  setTheme(initialTheme);
+  const syncGiscusTheme = frame => {
+    const send = () => frame.contentWindow?.postMessage({ giscus: { setConfig: { theme: root.getAttribute("data-theme") === "dark" ? "dark" : "light" } } }, "https://giscus.app");
+    frame.addEventListener("load", send, { once: true });
+    send();
+  };
+  const existingGiscus = document.querySelector("iframe.giscus-frame");
+  if (existingGiscus) {
+    syncGiscusTheme(existingGiscus);
+  } else {
+    const giscusObserver = new MutationObserver(() => {
+      const frame = document.querySelector("iframe.giscus-frame");
+      if (frame) { syncGiscusTheme(frame); giscusObserver.disconnect(); }
+    });
+    giscusObserver.observe(document.body, { childList: true, subtree: true });
+  }
+  themeButton?.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+  const sidebar = document.querySelector(".blog-sidebar");
+  const sidebarToggle = document.querySelector("[data-sidebar-toggle]");
+  const sidebarBackdrop = document.querySelector("[data-sidebar-backdrop]");
+  const setSidebarOpen = open => {
+    sidebar?.classList.toggle("blog-sidebar--open", open);
+    if (sidebarBackdrop) sidebarBackdrop.hidden = !open;
+  };
+  sidebarToggle?.addEventListener("click", () => setSidebarOpen(!sidebar?.classList.contains("blog-sidebar--open")));
+  sidebarBackdrop?.addEventListener("click", () => setSidebarOpen(false));
+  const categoryButtons = [...document.querySelectorAll("[data-category]")];
+  const posts = [...document.querySelectorAll("[data-post-category]")];
+  const heading = document.querySelector("[data-category-heading]");
+  categoryButtons.forEach(button => button.addEventListener("click", () => {
+    const category = button.dataset.category;
+    setSidebarOpen(false);
+    categoryButtons.forEach(item => item.classList.toggle("active", item === button));
+    posts.forEach(item => item.hidden = category !== "전체" && item.dataset.postCategory !== category);
+    if (heading) heading.textContent = category;
+    const count = posts.filter(item => !item.hidden).length;
+    const countNode = document.querySelector(".blog-list__count");
+    if (countNode) countNode.textContent = count + "개의 노트";
+  }));
+})();
+</script></body>
+</html>

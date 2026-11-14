@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/azzzhBlog/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HTTPS &amp; HTTP 기초 | azzzhBlog</title>
+    <meta name="description" content="브라우저가 서버랑 어떻게 대화하는지 — HTTP 구조, HTTPS 암호화, TLS 핸드셰이크, 버전별 차이 정리" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="azzzhBlog" />
+    <meta property="og:title" content="HTTPS &amp; HTTP 기초 | azzzhBlog" />
+    <meta property="og:description" content="브라우저가 서버랑 어떻게 대화하는지 — HTTP 구조, HTTPS 암호화, TLS 핸드셰이크, 버전별 차이 정리" />
+    <meta property="og:url" content="https://hyunjss.github.io/azzzhBlog/post/2026-04-29-http-https-basics/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="HTTPS &amp; HTTP 기초 | azzzhBlog" />
+    <meta name="twitter:description" content="브라우저가 서버랑 어떻게 대화하는지 — HTTP 구조, HTTPS 암호화, TLS 핸드셰이크, 버전별 차이 정리" />
+    <style>#seo-fallback{position:fixed;inset:0;z-index:10}</style>
+    <link rel="stylesheet" crossorigin href="/azzzhBlog/assets/index-CDIx57gP.css">
+  <link rel="canonical" href="https://hyunjss.github.io/azzzhBlog/post/2026-04-29-http-https-basics/" /><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"HTTPS & HTTP 기초","description":"브라우저가 서버랑 어떻게 대화하는지 — HTTP 구조, HTTPS 암호화, TLS 핸드셰이크, 버전별 차이 정리","url":"https://hyunjss.github.io/azzzhBlog/post/2026-04-29-http-https-basics/","mainEntityOfPage":{"@type":"WebPage","@id":"https://hyunjss.github.io/azzzhBlog/post/2026-04-29-http-https-basics/"},"author":{"@type":"Person","name":"hyunjss"},"publisher":{"@type":"Organization","name":"azzzhBlog"},"datePublished":"2026-04-29","dateModified":"2026-04-29","articleSection":"CS","keywords":"HTTP, HTTPS, TLS, 네트워크, 면접"}</script></head>
+  <body>
+    <div id="root"><div class="blog-layout blog-layout--post-active"><div class="titlebar"><div class="traffic-lights"><span class="traffic-light traffic-light--close"></span><span class="traffic-light traffic-light--min"></span><span class="traffic-light traffic-light--max"></span></div><button type="button" class="titlebar__hamburger" aria-label="메뉴" data-sidebar-toggle>☰</button><a class="titlebar__title" href="/azzzhBlog/">HTTPS &amp; HTTP 기초</a><div class="titlebar__actions"><a class="titlebar__btn" href="/azzzhBlog/">Home</a><a class="titlebar__btn" href="/azzzhBlog/about/">About</a><button type="button" class="titlebar__btn" data-theme-toggle>Dark</button></div></div><div class="blog-body"><div class="sidebar-backdrop" data-sidebar-backdrop hidden></div><aside class="blog-sidebar"><div class="blog-sidebar__section-label">카테고리</div><nav class="blog-sidebar__nav"><button type="button" class="sidebar-item active" data-category="전체"><span class="sidebar-item__label">전체</span><span class="sidebar-item__count">6</span></button><button type="button" class="sidebar-item" data-category="Personal/Reflections"><span class="sidebar-item__label">Personal/Reflections</span><span class="sidebar-item__count">1</span></button><button type="button" class="sidebar-item" data-category="etc."><span class="sidebar-item__label">etc.</span><span class="sidebar-item__count">1</span></button><button type="button" class="sidebar-item" data-category="AWS"><span class="sidebar-item__label">AWS</span><span class="sidebar-item__count">1</span></button><button type="button" class="sidebar-item" data-category="CS"><span class="sidebar-item__label">CS</span><span class="sidebar-item__count">1</span></button><button type="button" class="sidebar-item" data-category="JavaScript"><span class="sidebar-item__label">JavaScript</span><span class="sidebar-item__count">1</span></button><button type="button" class="sidebar-item" data-category="AI/Engineering"><span class="sidebar-item__label">AI/Engineering</span><span class="sidebar-item__count">1</span></button></nav></aside><main class="blog-main"><section class="blog-list"><div class="blog-list__header"><h2 data-category-heading>전체</h2><div class="blog-list__count">6개의 노트</div></div><div class="blog-list__items"><a data-post-category="Personal/Reflections" class="post-item" href="/azzzhBlog/post/ai-era-developer/"><div class="post-item__title">AI 시대, 개발자로 살아간다는 것</div><div class="post-item__date">2026-11-12 · 5분</div><div class="post-item__desc">AI가 빠르게 발전하는 시대에 개발자로 살아가며 느끼는 두려움과 허무함, 그리고 쉽게 정리되지 않는 생각들.</div><div class="post-item__tags"><span class="post-tag">#AI</span><span class="post-tag">#개발자</span><span class="post-tag">#커리어</span></div></a><a data-post-category="etc." class="post-item" href="/azzzhBlog/post/2026-06-30-nvmrc/"><div class="post-item__title">.nvmrc가 뭔지 정리</div><div class="post-item__date">2026-06-30 · 1분</div><div class="post-item__desc">프로젝트마다 Node 버전을 맞춰주는 .nvmrc 파일에 대해 정리합니다.</div><div class="post-item__tags"><span class="post-tag">#node</span><span class="post-tag">#nvmrc</span><span class="post-tag">#환경설정</span></div></a><a data-post-category="AWS" class="post-item" href="/azzzhBlog/post/2026-06-29-amplify-slack-notification/"><div class="post-item__title">AWS Amplify 빌드 알림 → Slack 연동하기</div><div class="post-item__date">2026-06-29 · 5분</div><div class="post-item__desc">AWS Amplify 빌드 이벤트를 EventBridge와 Lambda를 활용해 Slack으로 자동 전송하는 방법을 정리합니다.</div><div class="post-item__tags"><span class="post-tag">#aws</span><span class="post-tag">#amplify</span><span class="post-tag">#lambda</span></div></a><a data-post-category="CS" class="post-item active" href="/azzzhBlog/post/2026-04-29-http-https-basics/"><div class="post-item__title">HTTPS &amp; HTTP 기초</div><div class="post-item__date">2026-04-29 · 3분</div><div class="post-item__desc">브라우저가 서버랑 어떻게 대화하는지 — HTTP 구조, HTTPS 암호화, TLS 핸드셰이크, 버전별 차이 정리</div><div class="post-item__tags"><span class="post-tag">#HTTP</span><span class="post-tag">#HTTPS</span><span class="post-tag">#TLS</span></div></a><a data-post-category="JavaScript" class="post-item" href="/azzzhBlog/post/2026-04-28-closure/"><div class="post-item__title">클로저(Closure)란 무엇인가</div><div class="post-item__date">2026-04-28 · 2분</div><div class="post-item__desc">클로저의 개념과 실제 활용 방법을 예제와 함께 정리합니다.</div><div class="post-item__tags"><span class="post-tag">#closure</span><span class="post-tag">#scope</span><span class="post-tag">#javascript</span></div></a><a data-post-category="AI/Engineering" class="post-item" href="/azzzhBlog/post/2026-02-11-harness-engineering/"><div class="post-item__title">Harness Engineering: AI 에이전트 시대의 엔지니어링</div><div class="post-item__date">2026-02-11 · 4분</div><div class="post-item__desc">단 3명의 엔지니어가 5개월 동안 코드 한 줄 직접 쓰지 않고 100만 줄을 완성했다고? OpenAI의 Harness Engineering 읽고 정리해봤다.</div><div class="post-item__tags"><span class="post-tag">#AI</span><span class="post-tag">#harness-engineering</span><span class="post-tag">#codex</span></div></a></div></section><section class="blog-content"><div class="blog-content__inner"><a class="blog-content__back-mobile" href="/azzzhBlog/">← 목록으로</a><header class="blog-content__header"><div class="blog-content__category">CS</div><h1 class="blog-content__title">HTTPS &amp; HTTP 기초</h1><div class="blog-content__meta"><time datetime="2026-04-29">2026-04-29</time><span>·</span><span>3분 읽기</span></div><div class="blog-content__tags"><span class="post-tag post-tag--lg">#HTTP</span><span class="post-tag post-tag--lg">#HTTPS</span><span class="post-tag post-tag--lg">#TLS</span><span class="post-tag post-tag--lg">#네트워크</span><span class="post-tag post-tag--lg">#면접</span></div></header><article class="markdown-body"><h2 id="http를-한-줄로-정리하면">HTTP를 한 줄로 정리하면</h2>
+<p>클라이언트와 서버가 데이터를 주고받는 <strong>약속(프로토콜)</strong></p>
+<p>근데 HTTP는 <strong>무상태(Stateless)</strong> 라 매 요청이 독립적이고 서버가 이전 요청을 기억 못한다.</p>
+<pre><code>클라이언트: &quot;나 00이야, 로그인했어&quot;
+서버:       &quot;...누구세요?&quot; ← 기억 못함
+</code></pre>
+<p>그래서 쿠키/세션/JWT 같은 게 필요하다. 나중에 따로 정리하도록 하겠다.</p>
+<hr/>
+<h2 id="https--http--암호화">HTTPS = HTTP + 암호화</h2>
+<p>HTTPS는 HTTP에 <strong>TLS</strong> 를 얹은 것.</p>
+<p>→ <strong>TLS(Transport Layer Security)</strong> 란: 데이터를 암호화해서 주고받기 위한 보안 프로토콜, HTTPS에서 HTTP위에 얹히는 암호화 레이어가 TLS. 브라우저 주소창 위에 자물쇠 아이콘이 뜨는것이 TLS연결이 됐다는 뜻임</p>
+<ul>
+<li><strong>HTTP</strong> → 데이터가 평문으로 이동. 중간에서 누가 보면 다 보임.</li>
+<li><strong>HTTPS</strong> → 암호화해서 이동하니까 중간에서 봐도 해독 불가.</li>
+</ul>
+<p>배포 환경에서 HTTPS가 아니면 브라우저가 경고를 띄우거나 카메라, 위치 같은 API를 막아버린다는 걸 실무에서 처음 알았다. 쿠키의 <code>Secure</code> 속성도 HTTPS에서만 제대로 동작하고.</p>
+<p>로컬 <code>http://localhost</code>는 괜찮은데 실 배포는 무조건 HTTPS여야 하는 이유가 여기 있었다.</p>
+<hr/>
+<h2 id="tls-핸드셰이크-흐름">TLS 핸드셰이크 흐름</h2>
+<p>면접에서 &quot;HTTPS 동작 방식 설명해보세요&quot; 라고 물어보면 이 흐름으로 정리하면 될 것 같다.</p>
+<pre><code>1. 클라이언트 → 서버    &quot;나 이런 암호화 방식 지원해&quot;
+2. 서버 → 클라이언트    &quot;그럼 이걸로 하자, 내 인증서야&quot;
+3. 클라이언트           인증서 검증 (이 서버 믿을 수 있는 CA인지 확인)
+4. 클라이언트 → 서버    암호화 키 교환
+5. 이후 통신            암호화된 데이터 주고받기
+</code></pre>
+<p><code>net::ERR_CERT_AUTHORITY_INVALID</code> 에러가 저 3번에서 인증서 검증이 실패한 거였다. 로컬에서 self-signed 인증서 쓸 때 맨날 만나던 에러인데 이제야 이해됐다.</p>
+<hr/>
+<h2 id="http-요청응답-구조">HTTP 요청/응답 구조</h2>
+<p>Network 탭 열면 매일 보는 것들인데 정확히 어떤 구조인지 한번 짚어봤다.</p>
+<p><strong>요청(Request)</strong></p>
+<pre><code class="hljs language-http">GET /api/users HTTP/1.1
+Host: api.example.com
+Authorization: Bearer eyJhbGci...
+Content-Type: application/json
+</code></pre>
+<p><strong>응답(Response)</strong></p>
+<pre><code class="hljs language-http">HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: max-age=3600
+
+{ &quot;users&quot;: [...] }
+</code></pre>
+<h3 id="상태-코드">상태 코드</h3>
+<table><thead><tr><th>코드</th><th>의미</th><th>언제 나오냐면</th></tr></thead><tbody><tr><td>200</td><td>성공</td><td>일반 조회</td></tr><tr><td>201</td><td>생성됨</td><td>POST로 리소스 만들었을 때</td></tr><tr><td>204</td><td>내용 없음</td><td>DELETE 성공, 응답 바디 없을 때</td></tr><tr><td>301</td><td>영구 이동</td><td>도메인 변경, SEO에도 영향 있음</td></tr><tr><td>304</td><td>변경 없음</td><td>캐시 유효해서 서버가 바디 안 보낼 때</td></tr><tr><td>400</td><td>잘못된 요청</td><td>파라미터 누락이나 형식 오류</td></tr><tr><td>401</td><td>인증 필요</td><td>로그인 안 됨</td></tr><tr><td>403</td><td>권한 없음</td><td>로그인은 됐는데 접근 불가</td></tr><tr><td>404</td><td>없음</td><td>리소스 없음</td></tr><tr><td>500</td><td>서버 오류</td><td>백엔드 문제</td></tr></tbody></table>
+<p>401이랑 403을 혼동하면 FE에서 분기 처리할 때 애매해진다는 걸 협업하면서 느꼈다. 백엔드에서 정확히 구분해서 내려줘야 하는 이유가 있었던 거다.</p>
+<hr/>
+<h2 id="http-버전별-차이">HTTP 버전별 차이</h2>
+<p>면접 단골 주제라 정리해뒀다.</p>
+<pre><code>HTTP/1.1  요청을 하나씩 순서대로 처리.
+          이미지 10개면 10번 기다려야 함. (Head-of-line blocking)
+
+HTTP/2    하나의 연결에서 여러 요청을 동시에 처리. (멀티플렉싱)
+          이미지 10개 병렬로 받을 수 있고 헤더도 압축.
+
+HTTP/3    UDP 기반으로 바뀌어서 연결 속도가 더 빠름.
+          아직 모든 환경에서 지원하진 않음.
+</code></pre>
+<p>Next.js 같은 프레임워크가 번들을 잘게 쪼개도 괜찮은 이유가 HTTP/2 덕분이라는 것도 이번에 알게 됐다.</p>
+<hr/>
+<h2 id="면접-답변-정리">면접 답변 정리</h2>
+<p><strong>Q. HTTP와 HTTPS의 차이는?</strong></p>
+<p>HTTP는 데이터를 평문으로 전송하고, HTTPS는 TLS를 통해 암호화해서 전송한다. HTTPS는 인증서로 서버 신뢰성을 검증하고 중간자 공격을 방지한다. 쿠키 <code>Secure</code> 속성이나 브라우저 보안 API가 HTTPS에서만 동작하기 때문에 배포 환경에서는 필수다.</p>
+<p><strong>Q. HTTP/1.1과 HTTP/2의 차이는?</strong></p>
+<p>HTTP/1.1은 요청을 순차 처리해서 앞 요청이 지연되면 뒤도 막힌다. HTTP/2는 멀티플렉싱으로 하나의 연결에서 여러 요청을 병렬 처리하고 헤더도 압축해서 성능이 크게 개선됐다.</p></article><div class="giscus-wrap"><script src="https://giscus.app/client.js" data-repo="hyunjss/azzzhBlog" data-repo-id="R_kgDOSOcAvg" data-category="Comment" data-category-id="DIC_kwDOSOcAvs4DALvz" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="light" data-lang="ko" crossorigin="anonymous" async></script></div></div></section></main></div></div></div>
+  <script>
+(() => {
+  const root = document.documentElement;
+  const saved = localStorage.getItem("theme");
+  const initialTheme = saved === "dark" ? "dark" : "light";
+  root.setAttribute("data-theme", initialTheme);
+  const themeButton = document.querySelector("[data-theme-toggle]");
+  const setTheme = theme => {
+    root.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+    if (themeButton) themeButton.textContent = theme === "dark" ? "Light" : "Dark";
+    const giscus = document.querySelector("iframe.giscus-frame");
+    if (giscus) giscus.contentWindow?.postMessage({ giscus: { setConfig: { theme: theme === "dark" ? "dark" : "light" } } }, "https://giscus.app");
+  };
+  setTheme(initialTheme);
+  const syncGiscusTheme = frame => {
+    const send = () => frame.contentWindow?.postMessage({ giscus: { setConfig: { theme: root.getAttribute("data-theme") === "dark" ? "dark" : "light" } } }, "https://giscus.app");
+    frame.addEventListener("load", send, { once: true });
+    send();
+  };
+  const existingGiscus = document.querySelector("iframe.giscus-frame");
+  if (existingGiscus) {
+    syncGiscusTheme(existingGiscus);
+  } else {
+    const giscusObserver = new MutationObserver(() => {
+      const frame = document.querySelector("iframe.giscus-frame");
+      if (frame) { syncGiscusTheme(frame); giscusObserver.disconnect(); }
+    });
+    giscusObserver.observe(document.body, { childList: true, subtree: true });
+  }
+  themeButton?.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+  const sidebar = document.querySelector(".blog-sidebar");
+  const sidebarToggle = document.querySelector("[data-sidebar-toggle]");
+  const sidebarBackdrop = document.querySelector("[data-sidebar-backdrop]");
+  const setSidebarOpen = open => {
+    sidebar?.classList.toggle("blog-sidebar--open", open);
+    if (sidebarBackdrop) sidebarBackdrop.hidden = !open;
+  };
+  sidebarToggle?.addEventListener("click", () => setSidebarOpen(!sidebar?.classList.contains("blog-sidebar--open")));
+  sidebarBackdrop?.addEventListener("click", () => setSidebarOpen(false));
+  const categoryButtons = [...document.querySelectorAll("[data-category]")];
+  const posts = [...document.querySelectorAll("[data-post-category]")];
+  const heading = document.querySelector("[data-category-heading]");
+  categoryButtons.forEach(button => button.addEventListener("click", () => {
+    const category = button.dataset.category;
+    setSidebarOpen(false);
+    categoryButtons.forEach(item => item.classList.toggle("active", item === button));
+    posts.forEach(item => item.hidden = category !== "전체" && item.dataset.postCategory !== category);
+    if (heading) heading.textContent = category;
+    const count = posts.filter(item => !item.hidden).length;
+    const countNode = document.querySelector(".blog-list__count");
+    if (countNode) countNode.textContent = count + "개의 노트";
+  }));
+})();
+</script></body>
+</html>
