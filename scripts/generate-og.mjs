@@ -48,7 +48,7 @@ function updateHead(html, { title, description, url, type, structured }) {
   ];
   for (const [pattern, value] of meta) out = out.replace(new RegExp("<meta\\s+" + pattern.source, "i"), "<meta " + value);
   out = out.replace(/<link\s+rel="canonical"[^>]*>\s*/i, "");
-  return out.replace("</head>", '<link rel="canonical" href="' + escape(url) + '" />' + structured + "</head>");
+  return out.replace("</head>", '<link rel="canonical" href="' + escape(url) + '" /><link rel="alternate" type="application/rss+xml" title="' + siteName + ' RSS Feed" href="' + site + '/feed.xml" />' + structured + "</head>");
 }
 const posts = markdownFiles(postsDir).map(path => {
   const parsed = matter(readFileSync(join(postsDir, path), "utf8"));
